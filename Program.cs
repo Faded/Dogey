@@ -47,20 +47,12 @@ namespace Dogey
                 x.AllowMentionPrefix = false;
                 x.HelpMode = HelpMode.Public;
                 x.PrefixChar = config.Prefix;
+                x.ErrorHandler = Events.CommandError;
             })
             .UsingModules();
 
-            _dogey.MessageReceived += Events.OnMessageRecieved;
-            _dogey.UserJoined += Events.UserJoined;
-            _dogey.UserLeft += Events.UserLeft;
-            _dogey.UserBanned += Events.UserBannned;
-            _dogey.JoinedServer += Events.JoinedServer;
-
-            _dogey.AddModule<DogeyModule>("Dogey", ModuleFilter.None);
-            _dogey.AddModule<CommandModule>("Command", ModuleFilter.None);
-            _dogey.AddModule<AdminModule>("Admin", ModuleFilter.None);
-            _dogey.AddModule<GamesModule>("Games", ModuleFilter.None);
-            _dogey.AddModule<SearchModule>("Search", ModuleFilter.None);
+            LoadEvents();
+            LoadModules();
 
             _dogey.Log.Message += (s, e) =>
             {
@@ -72,10 +64,7 @@ namespace Dogey
                 while (true)
                 {
                     try {
-                        await _dogey.Connect(config.DiscordToken);
-                        if (!string.IsNullOrEmpty(config.Playing))
-                            _dogey.SetGame(config.Playing);
-                        await Task.Run(() => Background.RotateAvatars(_dogey, config));
+                        await _dogey.Connect(config.Token.Discord);
                         break;
                     } catch (Exception ex)
                     {
@@ -85,6 +74,25 @@ namespace Dogey
                     }
                 }
             });
+        }
+
+        private static void LoadEvents()
+        {
+            _dogey.MessageReceived += Events.OnMessageRecieved;
+            _dogey.UserJoined += Events.UserJoined;
+            _dogey.UserLeft += Events.UserLeft;
+            _dogey.UserBanned += Events.UserBannned;
+            _dogey.JoinedServer += Events.JoinedServer;
+        }
+
+        private static void LoadModules()
+        {
+            _dogey.AddModule<DogeyModule>("Dogey", ModuleFilter.None);
+            //_dogey.AddModule<CustomModule>("Custom", ModuleFilter.None);
+            _dogey.AddModule<CommandModule>("Command", ModuleFilter.None);
+            _dogey.AddModule<AdminModule>("Admin", ModuleFilter.None);
+            _dogey.AddModule<GamesModule>("Games", ModuleFilter.None);
+            _dogey.AddModule<SearchModule>("Search", ModuleFilter.None);
         }
     }
 }

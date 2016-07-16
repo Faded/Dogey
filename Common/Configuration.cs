@@ -10,15 +10,17 @@ namespace Dogey.Common
 {
     public class Configuration
     {
-        public string DiscordToken { get; set; }
-        public string GoogleToken { get; set; }
         public char Prefix { get; set; }
-        public string Playing { get; set; }
-        public string Avatar { get; set; }
+        public Tokens Token { get; set; }
+
+        public Configuration()
+        {
+            Token = new Tokens();
+        }
 
         public Configuration FromFile(string file)
         {
-            return JsonConvert.DeserializeObject<Configuration>(System.IO.File.ReadAllText(file));
+            return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(file));
         }
 
         public void ToFile(string file)
@@ -30,5 +32,11 @@ namespace Dogey.Common
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
+    }
+
+    public class Tokens
+    {
+        public string Discord { get; set; }
+        public string Google { get; set; }
     }
 }

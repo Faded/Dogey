@@ -14,7 +14,7 @@ namespace Dogey
 {
     public class Events
     {
-        internal static void OnMessageRecieved(object s, MessageEventArgs e)
+        public static void OnMessageRecieved(object s, MessageEventArgs e)
         {
             if (e.Message.IsMentioningMe()) Console.BackgroundColor = ConsoleColor.DarkBlue;
             if (e.Channel.IsPrivate && e.Server == null)
@@ -38,7 +38,7 @@ namespace Dogey
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
-        internal static void JoinedServer(object sender, ServerEventArgs e)
+        public static void JoinedServer(object sender, ServerEventArgs e)
         {
             string serverFolder = $@"servers\{e.Server.Id}";
             Directory.CreateDirectory(Path.Combine(serverFolder, "commands"));
@@ -47,12 +47,12 @@ namespace Dogey
             DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server.");
         }
 
-        internal static void CommandError(object sender, CommandErrorEventArgs e)
+        public static void CommandError(object sender, CommandErrorEventArgs e)
         {
-            DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
+            //DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
         }
 
-        internal static void UserJoined(object sender, UserEventArgs e)
+        public static void UserJoined(object sender, UserEventArgs e)
         {
             string banFile = $@"bans\{e.User.Id}.ban";
             if (File.Exists(banFile))
@@ -77,7 +77,7 @@ namespace Dogey
             Console.Write($"has joined the server.");
         }
         
-        internal static void UserLeft(object sender, UserEventArgs e)
+        public static void UserLeft(object sender, UserEventArgs e)
         {
 
             Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -88,7 +88,7 @@ namespace Dogey
             Console.Write($"has left the server.");
         }
 
-        internal static void UserBannned(object sender, UserEventArgs e)
+        public static void UserBannned(object sender, UserEventArgs e)
         {
             UserBans ban;
             string banFile = $@"bans\{e.User.Id}.ban";

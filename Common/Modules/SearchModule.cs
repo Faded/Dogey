@@ -34,7 +34,7 @@ namespace Dogey.Common.Modules
                     {
                         var youtubeService = new YouTubeService(new BaseClientService.Initializer()
                         {
-                            ApiKey = Program.config.GoogleToken,
+                            ApiKey = Program.config.Token.Google,
                             ApplicationName = this.GetType().ToString()
                         });
 
