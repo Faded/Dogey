@@ -21,8 +21,28 @@ namespace Dogey.Common.Modules
          ChannelID = "%channelid%",
          ChannelMention = "%channelmtn%",
          ServerName = "%servername%",
-         ServerId = "%serverid%",
-         Today = "%today%";
+         ServerId = "%serverid%";
+
+        private const string
+         Day1 = "%d%",
+         Day2 = "%dd%",
+         Day3 = "%ddd%",
+         Day4 = "%dddd%",
+         Month1 = "%m%",
+         Month2 = "%mm%",
+         Month3 = "%mmm%",
+         Month4 = "%mmmm%",
+         Year1 = "%y%",
+         Year2 = "%yy%",
+         Year3 = "%yyyy%",
+         Hour1 = "%h%",
+         Hour2 = "%hh%",
+         Hour3 = "%24h%",
+         Min1 = "%n%",
+         Min2 = "%nn%",
+         Sec1 = "%s%",
+         Sec2 = "%ss%",
+         Meridian = "%ampm%";
         
         public static string Format(string message, CommandEventArgs e)
         {
@@ -36,37 +56,94 @@ namespace Dogey.Common.Modules
                 {
                     case UserNick:
                         output = output.Replace(tag.Value, e.User.Nickname);
-                        break;
+                        continue;
                     case UserName:
                         output = output.Replace(tag.Value, e.User.Name);
-                        break;
+                        continue;
                     case UserID:
                         output = output.Replace(tag.Value, e.User.Id.ToString());
-                        break;
+                        continue;
                     case UserNickMention:
                         output = output.Replace(tag.Value, e.User.NicknameMention);
-                        break;
+                        continue;
                     case UserNameMention:
                         output = output.Replace(tag.Value, e.User.Mention);
-                        break;
+                        continue;
                     case ChannelName:
                         output = output.Replace(tag.Value, e.Channel.Name);
-                        break;
+                        continue;
                     case ChannelID:
                         output = output.Replace(tag.Value, e.Channel.Id.ToString());
-                        break;
+                        continue;
                     case ChannelMention:
                         output = output.Replace(tag.Value, e.Channel.Mention);
-                        break;
+                        continue;
                     case ServerName:
                         output = output.Replace(tag.Value, e.Server.Name);
-                        break;
+                        continue;
                     case ServerId:
                         output = output.Replace(tag.Value, e.Server.Id.ToString());
-                        break;
-                    case Today:
-                        output = output.Replace(tag.Value, DateTime.Now.ToString("d/MM/yy"));
-                        break;
+                        continue;
+                }
+                switch (tag.Value.ToLower())
+                {
+                    case Day1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("d"));
+                        continue;
+                    case Day2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("dd"));
+                        continue;
+                    case Day3:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("ddd"));
+                        continue;
+                    case Day4:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("dddd"));
+                        continue;
+                    case Month1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("M"));
+                        continue;
+                    case Month2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("MM"));
+                        continue;
+                    case Month3:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("MMM"));
+                        continue;
+                    case Month4:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("MMMM"));
+                        continue;
+                    case Year1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("y"));
+                        continue;
+                    case Year2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("yy"));
+                        continue;
+                    case Year3:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("yyyy"));
+                        continue;
+                    case Hour1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("h"));
+                        continue;
+                    case Hour2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("hh"));
+                        continue;
+                    case Hour3:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("H"));
+                        continue;
+                    case Min1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("m"));
+                        continue;
+                    case Min2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("mm"));
+                        continue;
+                    case Sec1:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("s"));
+                        continue;
+                    case Sec2:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("ss"));
+                        continue;
+                    case Meridian:
+                        output = output.Replace(tag.Value, DateTime.Now.ToString("tt"));
+                        continue;
                 }
             }
 

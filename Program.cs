@@ -82,13 +82,15 @@ namespace Dogey
             _dogey.UserJoined += Events.UserJoined;
             _dogey.UserLeft += Events.UserLeft;
             _dogey.UserBanned += Events.UserBannned;
+            _dogey.UserUnbanned += Events.UserUnbanned;
+            _dogey.UserUpdated += Events.UserUpdated;
             _dogey.JoinedServer += Events.JoinedServer;
         }
 
         private static void LoadModules()
         {
             _dogey.AddModule<DogeyModule>("Dogey", ModuleFilter.None);
-            //_dogey.AddModule<CustomModule>("Custom", ModuleFilter.None);
+            _dogey.AddModule<GuildModule>("Guild", ModuleFilter.None);
             _dogey.AddModule<CommandModule>("Command", ModuleFilter.None);
             _dogey.AddModule<AdminModule>("Admin", ModuleFilter.None);
             _dogey.AddModule<GamesModule>("Games", ModuleFilter.None);

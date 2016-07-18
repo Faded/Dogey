@@ -116,10 +116,6 @@ namespace Dogey.Common.Modules
                     .Description("Add a new message to the custom command.")
                     .Parameter("Message", ParameterType.Unparsed)
                     .Do(e => { return; });
-                cmd.CreateCommand("*.edit")
-                    .Description("Edit a message's content.")
-                    .Parameter("index", ParameterType.Required)
-                    .Do(e => { return; });
                 cmd.CreateCommand("*.raw")
                     .Description("View a message's raw text.")
                     .Parameter("index", ParameterType.Required)
@@ -208,7 +204,7 @@ namespace Dogey.Common.Modules
                         switch (cmdObj.Messages.Count)
                         {
                             case 0:
-                                await e.Channel.SendMessage($"This command has no stored messages, add some with `{cmdObj.Name}.add [msg]`.");
+                                await e.Channel.SendMessage($"This command has no stored messages, add some with `{cmdObj.Name}.add` `[msg]`.");
                                 return;
                             case 1:
                                 await e.Channel.SendMessage(cmdObj.Messages[0]);

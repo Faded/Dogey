@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Dogey.Common.Models;
 using Dogey.Utility;
 using Newtonsoft.Json;
 using System;
@@ -14,6 +13,15 @@ namespace Dogey
 {
     public class Events
     {
+        public static void JoinedServer(object sender, ServerEventArgs e)
+        {
+            string serverFolder = $@"servers\{e.Server.Id}";
+            Directory.CreateDirectory(Path.Combine(serverFolder, "commands"));
+            Directory.CreateDirectory(Path.Combine(serverFolder, "logs"));
+
+            DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server.");
+        }
+
         public static void OnMessageRecieved(object s, MessageEventArgs e)
         {
             if (e.Message.IsMentioningMe()) Console.BackgroundColor = ConsoleColor.DarkBlue;
@@ -38,37 +46,11 @@ namespace Dogey
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
-        public static void JoinedServer(object sender, ServerEventArgs e)
-        {
-            string serverFolder = $@"servers\{e.Server.Id}";
-            Directory.CreateDirectory(Path.Combine(serverFolder, "commands"));
-            Directory.CreateDirectory(Path.Combine(serverFolder, "logs"));
-
-            DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server.");
-        }
-
-        public static void CommandError(object sender, CommandErrorEventArgs e)
-        {
-            //DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
-        }
-
         public static void UserJoined(object sender, UserEventArgs e)
         {
             string banFile = $@"bans\{e.User.Id}.ban";
-            if (File.Exists(banFile))
-            {
-                var ban = JsonConvert.DeserializeObject<UserBans>(File.ReadAllText(banFile));
-                int totalBans = ban.Bans.Sum(x => x.Value);
-
-                if (totalBans > 1)
-                {
-                    e.Server.DefaultChannel.SendMessage($"Welcome {e.User.Mention} to the server! They have {totalBans} bans on their account.");
-                }
-            } else
-            {
-                e.Server.DefaultChannel.SendMessage($"Welcome {e.User.Mention} to the server!");
-            }
-
+            e.Server.DefaultChannel.SendMessage($"Welcome {e.User.Mention} to the server!");
+            
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -88,35 +70,19 @@ namespace Dogey
             Console.Write($"has left the server.");
         }
 
+        public static void UserUnbanned(object sender, UserEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write($"[{e.Server.Name}]");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"{e.User.Name} ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"was unbanned from the server. ");
+            Console.ForegroundColor = ConsoleColor.Green;
+        }
+
         public static void UserBannned(object sender, UserEventArgs e)
         {
-            UserBans ban;
-            string banFile = $@"bans\{e.User.Id}.ban";
-
-            if (!File.Exists(banFile))
-            {
-                ban = new UserBans()
-                {
-                    ID = e.User.Id
-                };
-                ban.Servers.Add(e.Server.Id);
-
-                string json = JsonConvert.SerializeObject(ban);
-                File.Create(banFile).Close();
-                File.WriteAllText(banFile, json);
-            } else
-            {
-                ban = JsonConvert.DeserializeObject<UserBans>(File.ReadAllText(banFile));
-
-                if (!ban.Servers.Contains(e.Server.Id))
-                {
-                    ban.Servers.Add(e.Server.Id);
-                } else
-                {
-                    ban.Bans[e.Server.Id]++;
-                }
-            }
-
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -124,7 +90,18 @@ namespace Dogey
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"was banned from the server. ");
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write($" Ban #{ban.Bans.Sum(x => x.Value)}");
         }
+
+        public static void CommandError(object sender, CommandErrorEventArgs e)
+        {
+            //DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
+            e.Channel.SendMessage(e.Exception.ToString());
+        }
+
+        public static void UserUpdated(object sender, UserUpdatedEventArgs e)
+        {
+
+        }
+
     }
 }

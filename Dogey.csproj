@@ -146,15 +146,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Configuration.cs" />
-    <Compile Include="Common\GuildSettings.cs" />
-    <Compile Include="Common\Models\UsageItem.cs" />
-    <Compile Include="Common\Models\UserBans.cs" />
+    <Compile Include="Common\Modules\Guild\GuildSettings.cs" />
     <Compile Include="Common\Modules\AdminModule.cs" />
     <Compile Include="Common\Modules\Command\CommandInfo.cs" />
     <Compile Include="Common\Modules\Command\CommandModule.cs" />
     <Compile Include="Common\Modules\Command\CommandTags.cs" />
     <Compile Include="Common\Modules\DogeyModule.cs" />
     <Compile Include="Common\Modules\GamesModule.cs" />
+    <Compile Include="Common\Modules\Guild\GuildModule.cs" />
     <Compile Include="Common\Modules\SearchModule.cs" />
     <Compile Include="Common\Modules\UsageModule.cs" />
     <Compile Include="Events.cs" />
@@ -167,9 +166,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\Enums\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\Dogey.ico" />
   </ItemGroup>
