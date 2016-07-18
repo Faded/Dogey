@@ -11,15 +11,15 @@ namespace Dogey.Common.Modules
         /// <summary>The command's execution text.</summary>
         public string Name { get; set; }
 
+        /// <summary>Defines the commands bind status.</summary>
+        public Bind Bind { get; set; }
+        /// <summary>Id of the object this command is bound to, null if global.</summary>
+        public ulong? BoundTo { get; set; }
+
         /// <summary>The user that created this command.</summary>
         public ulong CreatedBy { get; set; }
         /// <summary>The date and time this command was created.</summary>
         public DateTime CreatedOn { get; set; }
-        /// <summary>The channel this command was created in.</summary>
-        public ulong CreatedIn { get; set; }
-        /// <summary>True if channel-based, False if server-wide.</summary>
-        public bool BindToChannel { get; set; }
-
         /// <summary>The user that last edited this command.</summary>
         public ulong EditedBy { get; set; }
         /// <summary>The date and time this command was last edited.</summary>
@@ -32,5 +32,12 @@ namespace Dogey.Common.Modules
         {
             Messages = new List<string>();
         }
+    }
+
+    public enum Bind
+    {
+        Global,
+        Server,
+        Channel
     }
 }

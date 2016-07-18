@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Commands.Permissions.Levels;
 using Discord.Modules;
 using Dogey.Common;
 using Dogey.Common.Modules;
@@ -49,6 +50,7 @@ namespace Dogey
                 x.PrefixChar = config.Prefix;
                 x.ErrorHandler = Events.CommandError;
             })
+            .UsingPermissionLevels((u, c) => (int)Permission.Get(u, c))
             .UsingModules();
 
             LoadEvents();

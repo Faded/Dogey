@@ -11,11 +11,13 @@ namespace Dogey.Common
     public class Configuration
     {
         public char Prefix { get; set; }
+        public List<ulong> Owner { get; set; }
         public Tokens Token { get; set; }
 
         public Configuration()
         {
             Token = new Tokens();
+            Owner = new List<ulong>();
         }
 
         public Configuration FromFile(string file)

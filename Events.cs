@@ -95,7 +95,7 @@ namespace Dogey
         public static void CommandError(object sender, CommandErrorEventArgs e)
         {
             //DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
-            e.Channel.SendMessage(e.Exception.ToString());
+            //e.Channel.SendMessage(e.Exception.ToString());
         }
 
         public static void UserUpdated(object sender, UserUpdatedEventArgs e)

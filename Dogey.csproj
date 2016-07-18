@@ -145,6 +145,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\AccessLevel.cs" />
     <Compile Include="Common\Configuration.cs" />
     <Compile Include="Common\Modules\Guild\GuildSettings.cs" />
     <Compile Include="Common\Modules\AdminModule.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\DogeyConsole.cs" />
+    <Compile Include="Utility\Permission.cs" />
     <Compile Include="Utility\Startup.cs" />
   </ItemGroup>
   <ItemGroup>
