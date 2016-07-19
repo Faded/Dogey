@@ -43,6 +43,23 @@ namespace Dogey.Common.Modules
 
                         await e.Channel.SendMessage($"**Commands:**\n{string.Join(", ", commands)}");
                     });
+                cmd.CreateCommand("deleted")
+                    .Description("Displays a list of all recently deleted commands for this server.")
+                    .Alias(new string[] { "del" })
+                    .Do(async e =>
+                    {
+                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
+
+                        var commands = new List<string>();
+                        var dir = new DirectoryInfo(serverFolder);
+                        var commandFiles = dir.GetFiles("*.del");
+                        foreach (FileInfo file in commandFiles)
+                        {
+                            commands.Add(file.Name.Replace(".del", ""));
+                        }
+
+                        await e.Channel.SendMessage($"**Deleted Commands:**\n{string.Join(", ", commands)}");
+                    });
                 cmd.CreateCommand("find")
                     .Description("Displays a list of all available custom commands for this server.")
                     .Alias(new string[] { "search" })
@@ -61,7 +78,7 @@ namespace Dogey.Common.Modules
 
                         var results = commands.Where(x => x.Contains(e.Args[0]));
                         
-                        await e.Channel.SendMessage($"**Commands:**\n{string.Join(", ", results)}");
+                        await e.Channel.SendMessage($"**Found Commands:**\n{string.Join(", ", results)}");
                     });
             });
 

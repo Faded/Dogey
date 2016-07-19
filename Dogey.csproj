@@ -155,8 +155,9 @@
     <Compile Include="Common\Modules\DogeyModule.cs" />
     <Compile Include="Common\Modules\GamesModule.cs" />
     <Compile Include="Common\Modules\Guild\GuildModule.cs" />
+    <Compile Include="Common\Modules\InfoModule.cs" />
     <Compile Include="Common\Modules\SearchModule.cs" />
-    <Compile Include="Common\Modules\UsageModule.cs" />
+    <Compile Include="Common\Modules\TemplateModule.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

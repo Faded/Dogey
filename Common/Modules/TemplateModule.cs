@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Dogey.Common.Modules
 {
-    public class UsageModule : IModule
+    public class TemplateModule : IModule
     {
         private ModuleManager _manager;
         private DiscordClient _dogey;
@@ -22,17 +22,17 @@ namespace Dogey.Common.Modules
             _manager = manager;
             _dogey = manager.Client;
 
-            manager.CreateCommands("usage", cmd =>
+            manager.CreateCommands("", cmd =>
             {
                 cmd.CreateCommand("")
-                    .Description("Provide the user with information about the usage command.")
+                    .Description("")
                     .Do(async e =>
                     {
-                        await e.User.SendMessage("Don't");
+                        await e.Channel.SendMessage("Don't");
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "UsageModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "Module", "Loaded.");
         }
     }
 }

@@ -97,6 +97,7 @@ namespace Dogey
             _dogey.AddModule<AdminModule>("Admin", ModuleFilter.None);
             _dogey.AddModule<GamesModule>("Games", ModuleFilter.None);
             _dogey.AddModule<SearchModule>("Search", ModuleFilter.None);
+            _dogey.AddModule<InfoModule>("Info", ModuleFilter.None);
         }
     }
 }
