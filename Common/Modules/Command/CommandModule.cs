@@ -28,24 +28,47 @@ namespace Dogey.Common.Modules
             {
                 cmd.CreateCommand("")
                     .Description("Displays a list of all available custom commands for this server.")
-                    .Alias(new string[] { "cmds" })
                     .Do(async e =>
                     {
+                        string globalFolder = $@"servers\global\commands\";
                         string serverFolder = $@"servers\{e.Server.Id}\commands\";
 
-                        var commands = new List<string>();
+                        var serverCommands = new List<string>();
                         var dir = new DirectoryInfo(serverFolder);
                         var commandFiles = dir.GetFiles("*.doge");
                         foreach (FileInfo file in commandFiles)
                         {
-                            commands.Add(file.Name.Replace(".doge", ""));
+                            serverCommands.Add(file.Name.Replace(".doge", ""));
                         }
 
-                        await e.Channel.SendMessage($"**Commands:**\n{string.Join(", ", commands)}");
+                        var globalCommands = new List<string>();
+                        dir = new DirectoryInfo(globalFolder);
+                        commandFiles = dir.GetFiles("*.doge");
+                        foreach (FileInfo file in commandFiles)
+                        {
+                            globalCommands.Add(file.Name.Replace(".doge", ""));
+                        }
+
+                        var finalMsg = new List<string>();
+                        if (globalCommands.Count > 0)
+                        {
+                            finalMsg.Add($"Global ({globalCommands.Count()}): {string.Join(", ", globalCommands)}");
+                        }
+                        if (serverCommands.Count > 0)
+                        {
+                            finalMsg.Add($"Server ({serverCommands.Count()}): {string.Join(", ", serverCommands)}");
+                        }
+
+                        if (finalMsg.Count > 0)
+                        {
+                            await e.Channel.SendMessage($"```erlang\n{string.Join("\n", finalMsg)}```");
+                        } else
+                        {
+                            await e.Channel.SendMessage("There are no available commands.");
+                        }
                     });
                 cmd.CreateCommand("deleted")
                     .Description("Displays a list of all recently deleted commands for this server.")
-                    .Alias(new string[] { "del" })
                     .Do(async e =>
                     {
                         string serverFolder = $@"servers\{e.Server.Id}\commands\";
@@ -77,16 +100,35 @@ namespace Dogey.Common.Modules
                         }
 
                         var results = commands.Where(x => x.Contains(e.Args[0]));
-                        
+
                         await e.Channel.SendMessage($"**Found Commands:**\n{string.Join(", ", results)}");
                     });
-            });
+                cmd.CreateCommand("restore")
+                    .Description("Restore a recently deleted command.")
+                    .Parameter("text", ParameterType.Required)
+                    .Do(async e =>
+                    {
+                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
 
-            manager.CreateCommands("", cmd =>
-            {
-                cmd.CreateCommand("createcommand")
+                        var commands = new List<string>();
+                        var dir = new DirectoryInfo(serverFolder);
+                        var commandFiles = dir.GetFiles("*.del");
+                        var deletedFile = commandFiles.Where(x => x.Name.Contains(e.Args[0])).FirstOrDefault();
+
+                        if (deletedFile != null)
+                        {
+                            File.Move(deletedFile.FullName, deletedFile.FullName.Replace(".del", ".doge"));
+                            CreateCommand(manager, JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(deletedFile.FullName)));
+                            await e.Channel.SendMessage($"The command `{e.Args[0]}` has been restored.");
+                        }
+                        else
+                        {
+                            await e.Channel.SendMessage($"I could not find any command like `{e.Args[0]}`.");
+                        }
+                    });
+                cmd.CreateCommand("create")
                     .Description("Create a new custom command.")
-                    .Alias(new string[] { "createcmd" })
+                    .Alias(new string[] { "new" })
                     .Parameter("name", ParameterType.Required)
                     .Parameter("message", ParameterType.Unparsed)
                     .Do(async e =>
@@ -121,7 +163,7 @@ namespace Dogey.Common.Modules
                         };
                         command.Messages.Add(e.Args[1]);
 
-                        string json = JsonConvert.SerializeObject(command);
+                        string json = JsonConvert.SerializeObject(command, Formatting.Indented);
                         File.Create(Path.Combine(serverFolder, command.Name + ".doge")).Close();
                         File.WriteAllText(Path.Combine(serverFolder, command.Name + ".doge"), json);
 
@@ -132,9 +174,8 @@ namespace Dogey.Common.Modules
                         await e.Message.Delete();
                         await msg.Delete();
                     });
-                cmd.CreateCommand("deletecommand")
+                cmd.CreateCommand("delete")
                     .Description("Delete an existing custom command.")
-                    .Alias(new string[] { "deletecmd", "delcmd" })
                     .Parameter("name", ParameterType.Required)
                     .Do(async e =>
                     {
@@ -155,6 +196,10 @@ namespace Dogey.Common.Modules
                         await e.Message.Delete();
                         await msg.Delete();
                     });
+            });
+
+            manager.CreateCommands("", cmd =>
+            {
                 cmd.CreateCommand("*.del")
                     .Description("Delete a message from a command at the specified index.")
                     .Parameter("index", ParameterType.Optional)
@@ -184,7 +229,9 @@ namespace Dogey.Common.Modules
             if (!Directory.Exists("servers")) Directory.CreateDirectory("servers");
             foreach (string folder in Directory.GetDirectories("servers"))
             {
-                foreach (string file in Directory.GetFiles(Path.Combine(folder, "commands")))
+                string commandFolder = Path.Combine(folder, "commands");
+                if (!Directory.Exists(commandFolder)) Directory.CreateDirectory(commandFolder);
+                foreach (string file in Directory.GetFiles(commandFolder))
                 {
                     var cmd = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(file));
 
@@ -207,9 +254,19 @@ namespace Dogey.Common.Modules
                     .Parameter("index", ParameterType.Optional)
                     .Do(async e =>
                     {
-                        string commandFile = $@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge";
-                        if (!File.Exists(commandFile)) return;
-
+                        string commandFile = null;
+                        if (File.Exists($@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge"))
+                        {
+                            commandFile = $@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge";
+                        } else
+                        if (File.Exists($@"servers\global\commands\{e.Command.Text}.doge"))
+                        {
+                            commandFile = $@"servers\global\commands\{e.Command.Text}.doge";
+                        } else
+                        {
+                            return;
+                        }
+                        
                         var cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(commandFile));
 
                         switch (cmdObj.Messages.Count)
@@ -315,6 +372,8 @@ namespace Dogey.Common.Modules
                         }
 
                         cmdObj.Messages.RemoveAt(i);
+                        cmdObj.EditedBy = e.User.Id;
+                        cmdObj.EditedOn = DateTime.Now;
 
                         File.WriteAllText(commandFile, JsonConvert.SerializeObject(cmdObj));
 
@@ -344,7 +403,7 @@ namespace Dogey.Common.Modules
                         var cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(commandFile));
 
                         var message = new List<string>();
-                        
+
                         switch (cmdObj.Bind)
                         {
                             case Bind.Global:
@@ -357,23 +416,19 @@ namespace Dogey.Common.Modules
                                 message.Add($"Info for the channel command `{cmdObj.Name}`");
                                 break;
                         }
-                        message.Add($"**Messages:** {cmdObj.Messages.Count}");
-                        message.Add($"**Author:** {e.Server.GetUser(cmdObj.CreatedBy)}");
+                        message.Add("```erlang");
+                        message.Add($"Messages: {cmdObj.Messages.Count}");
+                        message.Add($" Created: {e.Server.GetUser(cmdObj.CreatedBy)}");
                         
                         var created = DateTime.Now - cmdObj.CreatedOn;
-                        message.Add($"{created.Days}d " +
-                                    $"{created.Hours}hr " +
-                                    $"{created.Minutes}m " +
-                                    $"{created.Seconds}s ago");
+                        message.Add($"      On: {Math.Round(created.TotalDays, 2)} days ago");
 
-                        message.Add($"**Edited:** {e.Server.GetUser(cmdObj.EditedBy)}");
+                        message.Add($"  Edited: {e.Server.GetUser(cmdObj.EditedBy)}");
 
                         var edited = DateTime.Now - cmdObj.EditedOn;
-                        message.Add($"{edited.Days} days " +
-                                    $"{edited.Hours} hours " +
-                                    $"{edited.Minutes} minutes " +
-                                    $"{edited.Seconds} seconds ago.");
-                        
+                        message.Add($"      On: {Math.Round(edited.TotalDays, 2)} days ago");
+
+                        message.Add("```");
                         await e.Channel.SendMessage(string.Join("\n", message));
                     });
             });
