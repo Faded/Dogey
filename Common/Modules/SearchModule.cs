@@ -32,6 +32,7 @@ namespace Dogey.Common.Modules
                     .Parameter("keywords", ParameterType.Unparsed)
                     .Do(async e =>
                     {
+                        var message = await e.Channel.SendMessage("Searching...");
                         var youtubeService = new YouTubeService(new BaseClientService.Initializer()
                         {
                             ApiKey = Program.config.Token.Google,
@@ -48,7 +49,7 @@ namespace Dogey.Common.Modules
                         {
                             if (searchResult.Id.Kind == "youtube#video")
                             {
-                                await e.Channel.SendMessage($"https://www.youtube.com/watch?v={searchResult.Id.VideoId}");
+                                await message.Edit($"https://www.youtube.com/watch?v={searchResult.Id.VideoId}");
                                 return;
                             }
                         }
@@ -58,20 +59,55 @@ namespace Dogey.Common.Modules
                     .Parameter("keywords", ParameterType.Unparsed)
                     .Do(async e =>
                     {
-                        var r = new Random();
-                        string tempFile = $"servers\\{e.Server.Id}\\{r.Next(10000, 99999)}.gif";
+                        var message = await e.Channel.SendMessage("Searching...");
                         string getUrl = $"http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag={Uri.UnescapeDataString(e.Args[0])}";
-                        
+
+                        string image;
                         using (WebClient client = new WebClient())
                         {
                             string json = client.DownloadString(getUrl);
-                            string image = JObject.Parse(json)["data"]["image_original_url"].ToString();
-
-                            client.DownloadFile(image, tempFile);
+                            image = JObject.Parse(json)["data"]["image_original_url"].ToString();
                         }
-                        
-                        await e.Channel.SendFile(tempFile);
-                        System.IO.File.Delete(tempFile);
+
+                        await message.Edit(image);
+                    });
+                cmd.CreateCommand("users")
+                    .Description("Search for a user that matches the provided text.")
+                    .Parameter("keywords", ParameterType.Unparsed)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string keywords = e.Args[0];
+                        var nicknames = e.Server.Users.Where(x => x.Nickname.Contains(keywords));
+                        var usernames = e.Server.Users.Where(x => x.Name.Contains(keywords));
+                        var discrims = e.Server.Users.Where(x => x.Discriminator.ToString().Contains(keywords));
+
+                        var msg = new List<string>();
+                        msg.Add("```erlang");
+
+                        if (nicknames.Count() > 0)
+                        {
+                            msg.Add($"Nicknames({nicknames.Count()}) " + string.Join(", ", nicknames));
+                        }
+                        if (usernames.Count() > 0)
+                        {
+                            msg.Add($"Usernames({usernames.Count()}) " + string.Join(", ", usernames));
+                        }
+                        if (discrims.Count() > 0)
+                        {
+                            msg.Add($"Discriminators({discrims.Count()}) " + string.Join(", ", discrims));
+                        }
+
+                        msg.Add("```");
+
+                        if (msg.Count <= 2)
+                        {
+                            await message.Edit($"There are not any users like the keyword `{keywords}`.");
+                        } else
+                        {
+                            await message.Edit(string.Join("\n", msg));
+                        }
+
                     });
 
                 DogeyConsole.Log(LogSeverity.Info, "SearchModule", "Loaded.");

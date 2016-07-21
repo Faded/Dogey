@@ -7,6 +7,7 @@ using Dogey.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -27,36 +28,39 @@ namespace Dogey.Common.Modules
             manager.CreateCommands("commands", cmd =>
             {
                 cmd.CreateCommand("")
+                    .MinPermissions((int)AccessLevel.User)
                     .Description("Displays a list of all available custom commands for this server.")
                     .Do(async e =>
                     {
-                        string globalFolder = $@"servers\global\commands\";
-                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
-
+                        string serverFolder = $@"servers\{e.Server.Id}\commands";
+                        string channelFolder = Path.Combine(serverFolder, e.Channel.Id.ToString());
+                        
+                        if (!Directory.Exists(channelFolder))
+                            Directory.CreateDirectory(channelFolder);
+                        
                         var serverCommands = new List<string>();
-                        var dir = new DirectoryInfo(serverFolder);
-                        var commandFiles = dir.GetFiles("*.doge");
-                        foreach (FileInfo file in commandFiles)
+                        var sfiles = new DirectoryInfo(serverFolder).GetFiles("*.doge");
+                        foreach (FileInfo file in sfiles)
                         {
                             serverCommands.Add(file.Name.Replace(".doge", ""));
                         }
 
-                        var globalCommands = new List<string>();
-                        dir = new DirectoryInfo(globalFolder);
-                        commandFiles = dir.GetFiles("*.doge");
-                        foreach (FileInfo file in commandFiles)
+                        var channelCommands = new List<string>();
+                        var cfiles = new DirectoryInfo(channelFolder).GetFiles("*.doge");
+                        foreach (FileInfo file in cfiles)
                         {
-                            globalCommands.Add(file.Name.Replace(".doge", ""));
+                            channelCommands.Add(file.Name.Replace(".doge", ""));
                         }
 
                         var finalMsg = new List<string>();
-                        if (globalCommands.Count > 0)
-                        {
-                            finalMsg.Add($"Global ({globalCommands.Count()}): {string.Join(", ", globalCommands)}");
-                        }
                         if (serverCommands.Count > 0)
                         {
-                            finalMsg.Add($"Server ({serverCommands.Count()}): {string.Join(", ", serverCommands)}");
+                            finalMsg.Add($"{e.Server.Name} ({serverCommands.Count()}): {string.Join(", ", serverCommands)}");
+                        }
+                        if (channelCommands.Count > 0)
+                        {
+                            string channelTitleCase = new CultureInfo("en-US", false).TextInfo.ToTitleCase(e.Channel.Name);
+                            finalMsg.Add($"{channelTitleCase} ({channelCommands.Count()}): {string.Join(", ", channelCommands)}");
                         }
 
                         if (finalMsg.Count > 0)
@@ -64,69 +68,105 @@ namespace Dogey.Common.Modules
                             await e.Channel.SendMessage($"```erlang\n{string.Join("\n", finalMsg)}```");
                         } else
                         {
-                            await e.Channel.SendMessage("There are no available commands.");
+                            await e.Channel.SendMessage("This server does not have any available commands.");
                         }
                     });
                 cmd.CreateCommand("deleted")
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Displays a list of all recently deleted commands for this server.")
                     .Do(async e =>
                     {
-                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
+                        string serverFolder = $@"servers\{e.Server.Id}\commands";
+                        string channelFolder = Path.Combine(serverFolder, e.Channel.Id.ToString());
 
-                        var commands = new List<string>();
-                        var dir = new DirectoryInfo(serverFolder);
-                        var commandFiles = dir.GetFiles("*.del");
-                        foreach (FileInfo file in commandFiles)
+                        if (!Directory.Exists(channelFolder))
+                            Directory.CreateDirectory(channelFolder);
+                        
+                        var serverCommands = new List<string>();
+                        var sfiles = new DirectoryInfo(serverFolder).GetFiles("*.del");
+                        foreach (FileInfo file in sfiles)
                         {
-                            commands.Add(file.Name.Replace(".del", ""));
+                            serverCommands.Add(file.Name.Replace(".del", ""));
                         }
 
-                        await e.Channel.SendMessage($"**Deleted Commands:**\n{string.Join(", ", commands)}");
+                        var channelCommands = new List<string>();
+                        var cfiles = new DirectoryInfo(channelFolder).GetFiles("*.del");
+                        foreach (FileInfo file in cfiles)
+                        {
+                            channelCommands.Add(file.Name.Replace(".del", ""));
+                        }
+
+                        var finalMsg = new List<string>();
+                        if (serverCommands.Count > 0)
+                        {
+                            finalMsg.Add($"{e.Server.Name} ({serverCommands.Count()}): {string.Join(", ", serverCommands)}");
+                        }
+                        if (channelCommands.Count > 0)
+                        {
+                            string channelTitleCase = new CultureInfo("en-US", false).TextInfo.ToTitleCase(e.Channel.Name);
+                            finalMsg.Add($"{channelTitleCase} ({channelCommands.Count()}): {string.Join(", ", channelCommands)}");
+                        }
+
+                        if (finalMsg.Count > 0)
+                        {
+                            await e.Channel.SendMessage($"```erlang\n{string.Join("\n", finalMsg)}```");
+                        }
+                        else
+                        {
+                            await e.Channel.SendMessage("This server does not have any recently deleted commands.");
+                        }
                     });
                 cmd.CreateCommand("find")
+                    .MinPermissions((int)AccessLevel.User)
                     .Description("Displays a list of all available custom commands for this server.")
                     .Alias(new string[] { "search" })
                     .Parameter("text", ParameterType.Required)
                     .Do(async e =>
                     {
-                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
+                        string serverFolder = $@"servers\{e.Server.Id}\commands";
+                        string channelFolder = Path.Combine(serverFolder, e.Channel.Id.ToString());
 
-                        var commands = new List<string>();
-                        var dir = new DirectoryInfo(serverFolder);
-                        var commandFiles = dir.GetFiles("*.doge");
-                        foreach (FileInfo file in commandFiles)
+                        if (!Directory.Exists(channelFolder))
+                            Directory.CreateDirectory(channelFolder);
+                        
+                        var serverCommands = new List<string>();
+                        var sfiles = new DirectoryInfo(serverFolder).GetFiles("*.doge");
+                        foreach (FileInfo file in sfiles)
                         {
-                            commands.Add(file.Name.Replace(".doge", ""));
+                            serverCommands.Add(file.Name.Replace(".doge", ""));
+                        }
+                        serverCommands = serverCommands.Where(x => x.Contains(e.Args[0])).ToList();
+
+                        var channelCommands = new List<string>();
+                        var cfiles = new DirectoryInfo(channelFolder).GetFiles("*.doge");
+                        foreach (FileInfo file in cfiles)
+                        {
+                            channelCommands.Add(file.Name.Replace(".doge", ""));
+                        }
+                        channelCommands = channelCommands.Where(x => x.Contains(e.Args[0])).ToList();
+
+                        var finalMsg = new List<string>();
+                        if (serverCommands.Count > 0)
+                        {
+                            finalMsg.Add($"{e.Server.Name} ({serverCommands.Count()}): {string.Join(", ", serverCommands)}");
+                        }
+                        if (channelCommands.Count > 0)
+                        {
+                            string channelTitleCase = new CultureInfo("en-US", false).TextInfo.ToTitleCase(e.Channel.Name);
+                            finalMsg.Add($"{channelTitleCase} ({channelCommands.Count()}): {string.Join(", ", channelCommands)}");
                         }
 
-                        var results = commands.Where(x => x.Contains(e.Args[0]));
-
-                        await e.Channel.SendMessage($"**Found Commands:**\n{string.Join(", ", results)}");
-                    });
-                cmd.CreateCommand("restore")
-                    .Description("Restore a recently deleted command.")
-                    .Parameter("text", ParameterType.Required)
-                    .Do(async e =>
-                    {
-                        string serverFolder = $@"servers\{e.Server.Id}\commands\";
-
-                        var commands = new List<string>();
-                        var dir = new DirectoryInfo(serverFolder);
-                        var commandFiles = dir.GetFiles("*.del");
-                        var deletedFile = commandFiles.Where(x => x.Name.Contains(e.Args[0])).FirstOrDefault();
-
-                        if (deletedFile != null)
+                        if (finalMsg.Count > 0)
                         {
-                            File.Move(deletedFile.FullName, deletedFile.FullName.Replace(".del", ".doge"));
-                            CreateCommand(manager, JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(deletedFile.FullName)));
-                            await e.Channel.SendMessage($"The command `{e.Args[0]}` has been restored.");
+                            await e.Channel.SendMessage($"```erlang\n{string.Join("\n", finalMsg)}```");
                         }
                         else
                         {
-                            await e.Channel.SendMessage($"I could not find any command like `{e.Args[0]}`.");
+                            await e.Channel.SendMessage($"I could not find any commands like `{e.Args[0]}`.");
                         }
                     });
                 cmd.CreateCommand("create")
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Create a new custom command.")
                     .Alias(new string[] { "new" })
                     .Parameter("name", ParameterType.Required)
@@ -134,6 +174,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         string serverFolder = $@"servers\{e.Server.Id}\commands";
+                        string channelFolder = Path.Combine(serverFolder, e.Channel.Id.ToString());
 
                         if (string.IsNullOrWhiteSpace(e.Args[1]))
                         {
@@ -169,50 +210,77 @@ namespace Dogey.Common.Modules
 
                         CreateCommand(manager, command);
 
-                        var msg = await e.Channel.SendMessage($"The command `{command.Name}` has been created.");
-                        await Task.Delay(10000);
-                        await e.Message.Delete();
-                        await msg.Delete();
+                        await e.Channel.SendMessage($"The command `{command.Name}` has been created.");
                     });
                 cmd.CreateCommand("delete")
+                    .MinPermissions((int)AccessLevel.ChannelAdmin)
                     .Description("Delete an existing custom command.")
                     .Parameter("name", ParameterType.Required)
                     .Do(async e =>
                     {
-                        if (!e.User.ServerPermissions.Administrator) return;
-                        string commandFile = $@"servers\{e.Server.Id}\commands\{e.Args[0]}.doge";
+                        string serverCommand = $@"servers\{e.Server.Id}\commands\{e.Args[0]}.doge";
+                        string channelCommand = $@"servers\{e.Server.Id}\commands\{e.Channel.Id}\{e.Args[0]}.doge";
 
-                        if (File.Exists(commandFile))
+                        if (File.Exists(serverCommand))
                         {
-                            File.Move(commandFile, commandFile.Replace($".doge", ".del"));
-                        }
-                        else
+                            File.Move(serverCommand, serverCommand.Replace($".doge", ".del"));
+                        } else
+                        if (File.Exists(channelCommand))
+                        {
+                            File.Move(channelCommand, channelCommand.Replace($".doge", ".del"));
+                        } else
                         {
                             await e.Channel.SendMessage($"{e.Args[0]} is not an existing command.");
                         }
+                        
+                        await e.Channel.SendMessage($"The command `{e.Args[0]}` has been deleted.");
+                    });
+                cmd.CreateCommand("restore")
+                    .MinPermissions((int)AccessLevel.ChannelAdmin)
+                    .Description("Restore a recently deleted command.")
+                    .Parameter("text", ParameterType.Required)
+                    .Do(async e =>
+                    {
+                        string serverFolder = $@"servers\{e.Server.Id}\commands";
+                        string channelFolder = Path.Combine(serverFolder, e.Channel.Id.ToString());
 
-                        var msg = await e.Channel.SendMessage($"The command `{e.Args[0]}` has been deleted.");
-                        await Task.Delay(10000);
-                        await e.Message.Delete();
-                        await msg.Delete();
+                        var commands = new List<string>();
+                        var dir = new DirectoryInfo(serverFolder);
+                        var commandFiles = dir.GetFiles("*.del");
+                        var deletedFile = commandFiles.Where(x => x.Name.Contains(e.Args[0])).FirstOrDefault();
+
+                        if (deletedFile != null)
+                        {
+                            File.Move(deletedFile.FullName, deletedFile.FullName.Replace(".del", ".doge"));
+                            CreateCommand(manager, JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(deletedFile.FullName)));
+                            await e.Channel.SendMessage($"The command `{e.Args[0]}` has been restored.");
+                        }
+                        else
+                        {
+                            await e.Channel.SendMessage($"I could not find any command like `{e.Args[0]}`.");
+                        }
                     });
             });
 
             manager.CreateCommands("", cmd =>
             {
-                cmd.CreateCommand("*.del")
-                    .Description("Delete a message from a command at the specified index.")
-                    .Parameter("index", ParameterType.Optional)
-                    .Do(e => { return; });
-                cmd.CreateCommand("*.add")
-                    .Description("Add a new message to the custom command.")
-                    .Parameter("Message", ParameterType.Unparsed)
-                    .Do(e => { return; });
                 cmd.CreateCommand("*.raw")
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("View a message's raw text.")
                     .Parameter("index", ParameterType.Required)
                     .Do(e => { return; });
+                cmd.CreateCommand("*.add")
+                    .MinPermissions((int)AccessLevel.ChannelMod)
+                    .Description("Add a new message to the custom command.")
+                    .Parameter("Message", ParameterType.Unparsed)
+                    .Do(e => { return; });
+                cmd.CreateCommand("*.del")
+                    .MinPermissions((int)AccessLevel.ChannelMod)
+                    .Description("Delete a message from a command at the specified index.")
+                    .Parameter("index", ParameterType.Optional)
+                    .Do(e => { return; });
                 cmd.CreateCommand("*.info")
+                    .MinPermissions((int)AccessLevel.User)
                     .Description("Get information about this command.")
                     .Do(e => { return; });
             });
@@ -225,12 +293,25 @@ namespace Dogey.Common.Modules
         public void LoadExistingCommands(ModuleManager manager)
         {
             int servers = 0;
+            int channels = 0;
             int commands = 0;
             if (!Directory.Exists("servers")) Directory.CreateDirectory("servers");
             foreach (string folder in Directory.GetDirectories("servers"))
             {
                 string commandFolder = Path.Combine(folder, "commands");
                 if (!Directory.Exists(commandFolder)) Directory.CreateDirectory(commandFolder);
+
+                foreach (string channel in Directory.GetDirectories(commandFolder))
+                {
+                    foreach (string file in Directory.GetFiles(channel))
+                    {
+                        var cmd = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(file));
+
+                        CreateCommand(manager, cmd);
+                        commands++;
+                    }
+                    channels++;
+                }
                 foreach (string file in Directory.GetFiles(commandFolder))
                 {
                     var cmd = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(file));
@@ -241,7 +322,7 @@ namespace Dogey.Common.Modules
                 servers++;
             }
 
-            DogeyConsole.Log(LogSeverity.Info, "CommandModule", $"Loaded {commands} command(s) for {servers} server(s).");
+            DogeyConsole.Log(LogSeverity.Info, "CommandModule", $"Loaded {commands} command(s) for {servers} server(s) and {channels} channel(s).");
         }
 
         public void CreateCommand(ModuleManager manager, CommandInfo command)
@@ -249,26 +330,27 @@ namespace Dogey.Common.Modules
             manager.CreateCommands("", cmd =>
             {
                 cmd.CreateCommand(command.Name)
+                    .MinPermissions((int)AccessLevel.User)
                     .Description("Create a new custom command.")
-                    
                     .Parameter("index", ParameterType.Optional)
                     .Do(async e =>
                     {
-                        string commandFile = null;
-                        if (File.Exists($@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge"))
+                        string serverCommand = $@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge";
+                        string channelCommand = $@"servers\{e.Server.Id}\commands\{e.Channel.Id}\{e.Command.Text}.doge";
+
+                        CommandInfo cmdObj = null;
+                        if (File.Exists(serverCommand))
                         {
-                            commandFile = $@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge";
+                            cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(serverCommand));
                         } else
-                        if (File.Exists($@"servers\global\commands\{e.Command.Text}.doge"))
+                        if (File.Exists(channelCommand))
                         {
-                            commandFile = $@"servers\global\commands\{e.Command.Text}.doge";
+                            cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(channelCommand));
                         } else
                         {
                             return;
                         }
                         
-                        var cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(commandFile));
-
                         switch (cmdObj.Messages.Count)
                         {
                             case 0:
@@ -278,57 +360,66 @@ namespace Dogey.Common.Modules
                                 await e.Channel.SendMessage(CommandTags.Format(cmdObj.Messages[0], e));
                                 return;
                             default:
-                                break;
+                                if (!string.IsNullOrWhiteSpace(e.Args[0]))
+                                {
+                                    int i;
+                                    if (Int32.TryParse(e.Args[0], out i))
+                                        await e.Channel.SendMessage($"{i}. {CommandTags.Format(cmdObj.Messages[i], e)}");
+                                } else
+                                {
+                                    string msg = cmdObj.Messages[new Random().Next(0, cmdObj.Messages.Count())];
+                                    int index = cmdObj.Messages.IndexOf(msg);
+                                    await e.Channel.SendMessage($"{index}. {msg}");
+                                }
+                                return;
                         }
-                        
-                        int i;
-                        bool isNumeric = Int32.TryParse(e.Args[0], out i);
-                        if (isNumeric)
-                        {
-                            await e.Channel.SendMessage($"{i}. {CommandTags.Format(cmdObj.Messages[i], e)}");
-                            return;
-                        }
-                        
-                        var r = new Random();
-                        string message = cmdObj.Messages[r.Next(0, cmdObj.Messages.Count())];
-                        await e.Channel.SendMessage($"{cmdObj.Messages.IndexOf(message)}. {CommandTags.Format(message, e)}");
                     });
                 cmd.CreateCommand($"{command.Name}.raw").Hide()
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("View a message's raw text.")
-                    
                     .Parameter("index", ParameterType.Required)
                     .Do(async e =>
                     {
-                        string commandFile = $@"servers\{e.Server.Id}\commands\{e.Command.Text}.doge";
-                        if (!File.Exists(commandFile)) return;
+                        string commandName = e.Command.Text.Split('.')[0];
+                        string serverCommand = $@"servers\{e.Server.Id}\commands\{commandName}.doge";
+                        string channelCommand = $@"servers\{e.Server.Id}\commands\{e.Channel.Id}\{commandName}.doge";
 
-                        var cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(commandFile));
+                        CommandInfo cmdObj = null;
+                        if (File.Exists(serverCommand))
+                        {
+                            cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(serverCommand));
+                        }
+                        else
+                        if (File.Exists(channelCommand))
+                        {
+                            cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(channelCommand));
+                        }
+                        else
+                        {
+                            return;
+                        }
 
                         switch (cmdObj.Messages.Count)
                         {
                             case 0:
-                                await e.Channel.SendMessage($"This command has no stored messages, add some with `{cmdObj.Name}.add` `[msg]`.");
+                                await e.Channel.SendMessage($"This command has no stored messages, add some with `{cmdObj.Name}.add [msg]`.");
                                 return;
                             case 1:
                                 await e.Channel.SendMessage(cmdObj.Messages[0]);
                                 return;
                             default:
-                                break;
-                        }
-
-                        int i;
-                        bool isNumeric = Int32.TryParse(e.Args[0], out i);
-                        if (isNumeric)
-                        {
-                            await e.Channel.SendMessage($"{i}. {CommandTags.Format(cmdObj.Messages[i], e)}");
-                        } else
-                        {
-                            await e.Channel.SendMessage($"**{e.Args[0]}** is not a valid index.");
+                                if (!string.IsNullOrWhiteSpace(e.Args[0]))
+                                {
+                                    int i;
+                                    if (Int32.TryParse(e.Args[0], out i))
+                                        await e.Channel.SendMessage($"{i}. {CommandTags.Format(cmdObj.Messages[i], e)}");
+                                }
+                                return;
                         }
                     });
                 cmd.CreateCommand($"{command.Name}.add").Hide()
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Add a new message to the custom command.")
-                    
                     .Parameter("Message", ParameterType.Unparsed)
                     .Do(async e =>
                     {
@@ -347,8 +438,8 @@ namespace Dogey.Common.Modules
                         await e.Channel.SendMessage($"Added message #{cmdObj.Messages.Count()} to `{cmdObj.Name}`.");
                     });
                 cmd.CreateCommand($"{command.Name}.del").Hide()
+                    .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Delete a message from a command at the specified index.")
-                    
                     .Parameter("index", ParameterType.Optional)
                     .Do(async e =>
                     {
@@ -379,20 +470,8 @@ namespace Dogey.Common.Modules
 
                         await e.Channel.SendMessage($"Deleted message #{i} from `{cmdObj.Name}`.");
                     });
-                cmd.CreateCommand($"{command.Name}.count").Hide()
-                    .Description("Get the total number of messages saved in this command.")
-                    
-                    .Do(async e =>
-                    {
-                        string commandName = e.Command.Text.Split('.')[0];
-                        string commandFile = $@"servers\{e.Server.Id}\commands\{commandName}.doge";
-                        if (!File.Exists(commandFile)) return;
-
-                        var cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(commandFile));
-
-                        await e.Channel.SendMessage($"`{cmdObj.Name}` currently contains **{cmdObj.Messages.Count()}** message(s).");
-                    });
                 cmd.CreateCommand($"{command.Name}.info").Hide()
+                    .MinPermissions((int)AccessLevel.User)
                     .Description("Get information about this command.")
                     .Do(async e =>
                     {

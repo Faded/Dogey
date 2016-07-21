@@ -1,9 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Commands.Permissions.Levels;
 using Discord.Modules;
 using Dogey.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,28 +25,83 @@ namespace Dogey.Common.Modules
 
             manager.CreateCommands("activity", cmd =>
             {
+                cmd.MinPermissions((int)AccessLevel.ServerAdmin);
+
                 cmd.CreateCommand("channel")
-                    .Description("Set the activity channel.")
-                    .Parameter("id/mention", ParameterType.Required)
+                    .Description("Get or set the activity channel.")
+                    .Parameter("name/id/mention", ParameterType.Required)
                     .Do(async e =>
                     {
-                        await e.User.SendMessage("Don't");
+                        string serverConfig = $@"servers\{e.Server.Id}\configuration.json";
+                        string channel = e.Args[0];
+
+                        if (!File.Exists(serverConfig))
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings()));
+
+                        var config = JsonConvert.DeserializeObject<GuildSettings>(File.ReadAllText(serverConfig));
+                        if (string.IsNullOrWhiteSpace(channel))
+                        {
+                            if (config.ActivityChannel == null)
+                            {
+                                await e.Channel.SendMessage("There is not a configured activity channel for this server.");
+                            } else
+                            {
+                                await e.Channel.SendMessage($"The current activity channel is {e.Server.GetChannel(config.ActivityChannel ?? 0).Mention}");
+                            }
+                        } else
+                        {
+                            Channel c = null;
+                            if (e.Message.MentionedUsers.Count() == 1)
+                            {
+                                c = e.Message.MentionedChannels.FirstOrDefault();
+                            } else
+                            if (e.Server.FindChannels(channel).Any())
+                            {
+                                c = e.Server.FindChannels(channel).FirstOrDefault();
+                            } else
+                            if (e.Server.AllChannels.Any(x => x.Id.ToString() == channel))
+                            {
+                                c = e.Server.GetChannel(ulong.Parse(channel));
+                            } else
+                            {
+                                await e.Channel.SendMessage($"I was unable to find a channel like `{channel}`.");
+                                return;
+                            }
+
+                            config.ActivityChannel = c.Id;
+                            config.EnableActivity = true;
+
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(config));
+
+                            await e.Channel.SendMessage($"The channel {c.Mention} will now be used to log server activity.");
+                        }
                     });
-                cmd.CreateCommand("enable")
-                    .Description("Enable logging guild activity to the specified activity channel.")
+                cmd.CreateCommand("toggle")
+                    .Description("Toggle logging guild activity to the configured channel.")
                     .Do(async e =>
                     {
-                        await e.User.SendMessage("Don't");
-                    });
-                cmd.CreateCommand("disable")
-                    .Description("Disable logging guild activity to the specified activity channel.")
-                    .Do(async e =>
-                    {
-                        await e.User.SendMessage("Don't");
+                        string serverConfig = $@"servers\{e.Server.Id}\configuration.json";
+
+                        if (!File.Exists(serverConfig))
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings()));
+
+                        var config = JsonConvert.DeserializeObject<GuildSettings>(File.ReadAllText(serverConfig));
+                        if (config.ActivityChannel == null)
+                        {
+                            await e.Channel.SendMessage("You need to configure an activity channel before you can toggle logging.");
+                        } else
+                        {
+                            config.EnableActivity = (config.EnableActivity) ? false : true;
+                            string mode = (config.EnableActivity) ? "Enabled" : "Disabled";
+
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(config));
+
+                            await e.Channel.SendMessage($"Logging has been {mode} for the channel {e.Server.GetChannel(ulong.Parse(config.ActivityChannel.ToString())).Mention}.");
+                        }
                     });
             });
 
-            manager.CreateCommands("star", cmd =>
+            manager.CreateCommands("stars", cmd =>
             {
                 cmd.CreateCommand("channel")
                     .Description("Set the star channel.")

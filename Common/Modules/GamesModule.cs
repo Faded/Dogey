@@ -22,41 +22,34 @@ namespace Dogey.Common.Modules
             _manager = manager;
             _dogey = manager.Client;
 
-            manager.CreateCommands("stats", cmd =>
+            manager.CreateCommands("", cmd =>
             {
-                cmd.CreateCommand("")
-                    .Do(async e =>
-                    {
-                        await e.Channel.SendMessage("**Available Stats:**\n" +
-                                                    "`stats` `overwatch` `{battletag}`");
-                    });
                 cmd.CreateCommand("overwatch")
                     .Alias(new string[] { "ow" })
                     .Description("Get overwatch stats for this user.")
                     .Parameter("user", ParameterType.Required)
                     .Do(async e =>
                     {
+                        var message = await e.Channel.SendMessage("Searching...");
                         const string baseUrl = "http://masteroverwatch.com/profile/pc/us/";
                         string battletag = e.Args[0];
-
-                        if (string.IsNullOrEmpty(battletag))
-                        {
-                            await e.Channel.SendMessage("`~stats` `overwatch` `{battletag}`");
-                            return;
-                        }
-
+                        
                         string userUrl = baseUrl + battletag.Replace("#", "-");
 
-                        WebClient x = new WebClient();
-                        string title = Regex.Match(x.DownloadString(userUrl), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value;
-
-                        if (title.Contains("Not found."))
+                        using (var c = new WebClient())
                         {
-                            await e.Channel.SendMessage($"The battletag `{battletag}` is not valid.");
-                            return;
-                        }
+                            string title = Regex.Match(c.DownloadString(userUrl),
+                                @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+                                RegexOptions.IgnoreCase).Groups["Title"].Value;
 
-                        await e.Channel.SendMessage(userUrl);
+                            if (title.Contains("Not found."))
+                            {
+                                await message.Edit($"The battletag `{battletag}` is not valid.");
+                                return;
+                            }
+                        }
+                        
+                        await message.Edit(userUrl);
                     });
             });
 

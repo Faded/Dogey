@@ -15,7 +15,7 @@ namespace Dogey.Utility
             if (Program.config.Owner.Contains(u.Id))
                 return AccessLevel.BotAdmin;
 
-            if (u.IsBot)
+            if (u.IsBot || u.IsServerDeafened || u.IsServerMuted || u.IsServerSuppressed)
                 return AccessLevel.Ignore;
 
             if (!c.IsPrivate)

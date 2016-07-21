@@ -148,7 +148,7 @@
     <Compile Include="Common\AccessLevel.cs" />
     <Compile Include="Common\Configuration.cs" />
     <Compile Include="Common\Modules\Guild\GuildSettings.cs" />
-    <Compile Include="Common\Modules\AdminModule.cs" />
+    <Compile Include="Common\Modules\ModeratorModule.cs" />
     <Compile Include="Common\Modules\Command\CommandInfo.cs" />
     <Compile Include="Common\Modules\Command\CommandModule.cs" />
     <Compile Include="Common\Modules\Command\CommandTags.cs" />

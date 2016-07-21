@@ -55,7 +55,7 @@ namespace Dogey
 
             LoadEvents();
             LoadModules();
-
+            
             _dogey.Log.Message += (s, e) =>
             {
                 DogeyConsole.Log(e.Severity, e.Source, e.Message);
@@ -91,13 +91,15 @@ namespace Dogey
 
         private static void LoadModules()
         {
-            _dogey.AddModule<DogeyModule>("Dogey", ModuleFilter.None);
             _dogey.AddModule<GuildModule>("Guild", ModuleFilter.None);
-            _dogey.AddModule<CommandModule>("Command", ModuleFilter.None);
-            _dogey.AddModule<AdminModule>("Admin", ModuleFilter.None);
-            _dogey.AddModule<GamesModule>("Games", ModuleFilter.None);
-            _dogey.AddModule<SearchModule>("Search", ModuleFilter.None);
-            _dogey.AddModule<InfoModule>("Info", ModuleFilter.None);
+            _dogey.AddModule<ModeratorModule>("Moderation", ModuleFilter.None);
+
+            _dogey.AddModule<GamesModule>("General", ModuleFilter.None);
+            _dogey.AddModule<DogeyModule>("General", ModuleFilter.None);
+            _dogey.AddModule<SearchModule>("General", ModuleFilter.None);
+            _dogey.AddModule<InfoModule>("General", ModuleFilter.None);
+
+            _dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
         }
     }
 }

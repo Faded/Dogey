@@ -8,13 +8,13 @@ namespace Dogey.Common
 {
     public enum AccessLevel
     {
-        BotAdmin,
-        ServerOwner,
-        ServerAdmin,
-        ServerMod,
-        ChannelAdmin,
-        ChannelMod,
+        Ignore,
         User,
-        Ignore
+        ChannelMod,
+        ChannelAdmin,
+        ServerMod,
+        ServerAdmin,
+        ServerOwner,
+        BotAdmin
     }
 }
