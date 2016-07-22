@@ -40,5 +40,6 @@ namespace Dogey.Common
     {
         public string Discord { get; set; }
         public string Google { get; set; }
+        public string Vimeo { get; set; }
     }
 }

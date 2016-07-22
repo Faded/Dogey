@@ -32,11 +32,11 @@ namespace Dogey.Common.Modules
                     .Parameter("name/id/mention", ParameterType.Required)
                     .Do(async e =>
                     {
-                        string serverConfig = $@"servers\{e.Server.Id}\configuration.json";
+                        string serverConfig = $@"servers\{e.Server.Id}\guild.json";
                         string channel = e.Args[0];
 
                         if (!File.Exists(serverConfig))
-                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings()));
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings(e.Server.Id)));
 
                         var config = JsonConvert.DeserializeObject<GuildSettings>(File.ReadAllText(serverConfig));
                         if (string.IsNullOrWhiteSpace(channel))
@@ -80,10 +80,10 @@ namespace Dogey.Common.Modules
                     .Description("Toggle logging guild activity to the configured channel.")
                     .Do(async e =>
                     {
-                        string serverConfig = $@"servers\{e.Server.Id}\configuration.json";
+                        string serverConfig = $@"servers\{e.Server.Id}\guild.json";
 
                         if (!File.Exists(serverConfig))
-                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings()));
+                            File.WriteAllText(serverConfig, JsonConvert.SerializeObject(new GuildSettings(e.Server.Id)));
 
                         var config = JsonConvert.DeserializeObject<GuildSettings>(File.ReadAllText(serverConfig));
                         if (config.ActivityChannel == null)
@@ -112,7 +112,7 @@ namespace Dogey.Common.Modules
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "GuildModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "GuildModule", "Done");
         }
     }
 }

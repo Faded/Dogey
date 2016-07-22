@@ -100,8 +100,17 @@ namespace Dogey
 
         public static void UserUpdated(object sender, UserUpdatedEventArgs e)
         {
+            if (e.Before.VoiceChannel != null)
+            {
+                var channel = e.Before.VoiceChannel;
+                string tempChannel = $@"servers\{e.Server.Id}\{channel.Id}.voice";
 
+                if (File.Exists(tempChannel) && channel.Users.Count() < 1)
+                {
+                    channel.Delete();
+                    File.Delete(tempChannel);
+                }
+            }
         }
-
     }
 }

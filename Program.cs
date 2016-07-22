@@ -46,7 +46,7 @@ namespace Dogey
             .UsingCommands(x =>
             {
                 x.AllowMentionPrefix = false;
-                x.HelpMode = HelpMode.Public;
+                x.HelpMode = HelpMode.Private;
                 x.PrefixChar = config.Prefix;
                 x.ErrorHandler = Events.CommandError;
             })
@@ -95,9 +95,10 @@ namespace Dogey
             _dogey.AddModule<ModeratorModule>("Moderation", ModuleFilter.None);
 
             _dogey.AddModule<GamesModule>("General", ModuleFilter.None);
-            _dogey.AddModule<DogeyModule>("General", ModuleFilter.None);
             _dogey.AddModule<SearchModule>("General", ModuleFilter.None);
             _dogey.AddModule<InfoModule>("General", ModuleFilter.None);
+            _dogey.AddModule<TempModule>("General", ModuleFilter.None);
+            _dogey.AddModule<DogeyModule>("Other", ModuleFilter.None);
 
             _dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
         }

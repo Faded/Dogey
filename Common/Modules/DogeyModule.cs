@@ -3,9 +3,11 @@ using Discord.Commands;
 using Discord.Modules;
 using Dogey.Utility;
 using NCalc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -58,6 +60,7 @@ namespace Dogey.Common.Modules
                         System.IO.File.Delete(dogeFile);
                     });
                 cmd.CreateCommand("evaluate")
+                    .Alias(new string[] { "eval" })
                     .Description("Do some math.")
                     .Parameter("Math", ParameterType.Unparsed)
                     .Do(async e =>
@@ -65,6 +68,22 @@ namespace Dogey.Common.Modules
                         var express = new Expression(e.Args[0]);
 
                         await e.Channel.SendMessage($"The solution for **{e.Args[0]}** is **{express.Evaluate()}**");
+                    });
+                cmd.CreateCommand("info")
+                    .Description("Get information about Dogey's current session.")
+                    .Do(async e =>
+                    {
+                        var msg = new List<string>();
+                        var proc = Process.GetCurrentProcess();
+
+                        msg.Add("```erlang");
+                        msg.Add($" Started: {proc.StartTime.ToString("MMM d, yy h:mm:ss tt")}");
+                        msg.Add($"  Memory: {(double.Parse(proc.PrivateMemorySize64.ToString()) / 1000).ToString("N2")} kb");
+                        msg.Add($"  Uptime: {Math.Round(timer.Elapsed.TotalDays, 2)} days");
+                        msg.Add($" Version: {Assembly.GetExecutingAssembly().GetName().Version}");
+                        msg.Add("```");
+
+                        await e.Channel.SendMessage(string.Join("\n", msg));
                     });
                 cmd.CreateCommand("uptime")
                     .Description("Shows how long Dogey has been online.")
@@ -79,12 +98,6 @@ namespace Dogey.Common.Modules
 
                         await e.Channel.SendMessage($"I have been online for {days} {hours} {minutes}.");
                     });
-                cmd.CreateCommand("version")
-                    .Description("Shows what version Dogey is currently on.")
-                    .Do(async e =>
-                    {
-                        await e.Channel.SendMessage($"I am running version **{Assembly.GetExecutingAssembly().GetName().Version}**.");
-                    });
                 cmd.CreateCommand("invite")
                     .Description("Provides a link to invite Dogey to a server.")
                     .Do(async e =>
@@ -93,7 +106,7 @@ namespace Dogey.Common.Modules
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "DogeyModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "DogeyModule", "Done");
         }
     }
 }

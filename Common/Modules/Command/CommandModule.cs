@@ -287,7 +287,7 @@ namespace Dogey.Common.Modules
 
             LoadExistingCommands(manager);
 
-            DogeyConsole.Log(LogSeverity.Info, "CommandModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "CommandModule", "Done");
         }
 
         public void LoadExistingCommands(ModuleManager manager)

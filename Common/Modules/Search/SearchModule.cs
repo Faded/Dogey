@@ -33,26 +33,19 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                        {
-                            ApiKey = Program.config.Token.Google,
-                            ApplicationName = this.GetType().ToString()
-                        });
-
-                        var searchListRequest = youtubeService.Search.List("snippet");
-                        searchListRequest.Q = e.Args[0];
-                        searchListRequest.MaxResults = 50;
-
-                        var searchListResponse = await searchListRequest.ExecuteAsync();
-                        
-                        foreach (var searchResult in searchListResponse.Items)
-                        {
-                            if (searchResult.Id.Kind == "youtube#video")
-                            {
-                                await message.Edit($"https://www.youtube.com/watch?v={searchResult.Id.VideoId}");
-                                return;
-                            }
-                        }
+                        string videoUrl = SearchWith.Youtube(e.Args[0]);
+                        await message.Edit(videoUrl);
+                    });
+                cmd.CreateCommand("stackoverflow")
+                    .Alias(new string[] { "so" })
+                    .Description("Search StackOverflow for a question matching the provided text.")
+                    .Parameter("tag", ParameterType.Required)
+                    .Parameter("query", ParameterType.Unparsed)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string questionUrl = SearchWith.StackExchange(e.Args[0], e.Args[1]);
+                        await message.Edit(questionUrl);
                     });
                 cmd.CreateCommand("gif")
                     .Description("Search for a gif matching the specified text.")
@@ -107,10 +100,44 @@ namespace Dogey.Common.Modules
                         {
                             await message.Edit(string.Join("\n", msg));
                         }
+                    });
+                cmd.CreateCommand("lookup")
+                    .Description("Retrieve information about the provided ip or domain.")
+                    .Parameter("ip", ParameterType.Required)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string getUrl = $"http://ip-api.com/json/{e.Args[0]}";
+                        string mapsUrl = "https://www.google.com/maps/@{0},{1},15z";
 
+                        using (WebClient client = new WebClient())
+                        {
+                            string json = client.DownloadString(getUrl);
+                            var info = JObject.Parse(json);
+
+                            if (info["status"].ToString() == "success")
+                            {
+                                var msg = new List<string>();
+                                msg.Add($"**Map**: {string.Format(mapsUrl, info["lat"].ToString(), info["lon"].ToString())}");
+                                msg.Add("```erlang");
+                                msg.Add($" Country: {info["country"].ToString()}");
+                                msg.Add($"  Region: {info["regionName"].ToString()}");
+                                msg.Add($"    City: {info["city"].ToString()}");
+                                msg.Add($"     Zip: {info["zip"].ToString()}");
+                                msg.Add($"Timezone: {info["timezone"].ToString()}");
+                                msg.Add($"     ISP: {info["isp"].ToString()}");
+                                msg.Add("```");
+
+                                await message.Edit(string.Join("\n", msg));
+                            }
+                            else
+                            {
+                                await message.Edit(info["message"].ToString());
+                            }
+                        }
                     });
 
-                DogeyConsole.Log(LogSeverity.Info, "SearchModule", "Loaded.");
+                DogeyConsole.Log(LogSeverity.Info, "SearchModule", "Done");
             });
         } 
     }

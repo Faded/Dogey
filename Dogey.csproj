@@ -156,8 +156,13 @@
     <Compile Include="Common\Modules\GamesModule.cs" />
     <Compile Include="Common\Modules\Guild\GuildModule.cs" />
     <Compile Include="Common\Modules\InfoModule.cs" />
-    <Compile Include="Common\Modules\SearchModule.cs" />
+    <Compile Include="Common\Modules\Search\SearchModule.cs" />
+    <Compile Include="Common\Modules\Search\SearchWith.cs" />
+    <Compile Include="Common\Modules\OwnerModule.cs" />
     <Compile Include="Common\Modules\TemplateModule.cs" />
+    <Compile Include="Common\Modules\Temporary\TempChannel.cs" />
+    <Compile Include="Common\Modules\Temporary\TempModule.cs" />
+    <Compile Include="Common\Modules\Temporary\ChannelTitle.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

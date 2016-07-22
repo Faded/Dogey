@@ -117,7 +117,7 @@ namespace Dogey.Common.Modules
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "InfoModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "InfoModule", "Done");
         }
     }
 }

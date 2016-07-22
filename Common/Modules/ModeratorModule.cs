@@ -65,7 +65,7 @@ namespace Dogey.Common.Modules
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "ModeratorModule", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "ModeratorModule", "Done");
         }
     }
 }

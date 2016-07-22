@@ -32,7 +32,7 @@ namespace Dogey.Common.Modules
                     });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "Module", "Loaded.");
+            DogeyConsole.Log(LogSeverity.Info, "Module", "Done");
         }
     }
 }                  
