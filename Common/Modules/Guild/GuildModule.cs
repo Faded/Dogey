@@ -92,7 +92,7 @@ namespace Dogey.Common.Modules
                         } else
                         {
                             config.EnableActivity = (config.EnableActivity) ? false : true;
-                            string mode = (config.EnableActivity) ? "Enabled" : "Disabled";
+                            string mode = (config.EnableActivity) ? "enabled" : "disabled";
 
                             File.WriteAllText(serverConfig, JsonConvert.SerializeObject(config));
 

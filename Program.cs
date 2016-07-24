@@ -80,18 +80,34 @@ namespace Dogey
 
         private static void LoadEvents()
         {
-            _dogey.MessageReceived += Events.OnMessageRecieved;
+            _dogey.MessageReceived += Events.MessageRecieved;
+            _dogey.MessageDeleted += Events.MessageDeleted;
+            _dogey.MessageUpdated += Events.MessageUpdated;
+
+            _dogey.ProfileUpdated += Events.ProfileUpdated;
+
             _dogey.UserJoined += Events.UserJoined;
             _dogey.UserLeft += Events.UserLeft;
             _dogey.UserBanned += Events.UserBannned;
             _dogey.UserUnbanned += Events.UserUnbanned;
             _dogey.UserUpdated += Events.UserUpdated;
+
             _dogey.JoinedServer += Events.JoinedServer;
+            _dogey.ServerUpdated += Events.ServerUpdated;
+
+            _dogey.RoleCreated += Events.RoleCreated;
+            _dogey.RoleDeleted += Events.RoleDeleted;
+            _dogey.RoleUpdated += Events.RoleUpdated;
+
+            _dogey.ChannelCreated += Events.ChannelCreated;
+            _dogey.ChannelDestroyed += Events.ChannelDestroyed;
+            _dogey.ChannelUpdated += Events.ChannelUpdated;
         }
 
         private static void LoadModules()
         {
             _dogey.AddModule<GuildModule>("Guild", ModuleFilter.None);
+            _dogey.AddModule<OwnerModule>("Guild", ModuleFilter.None);
             _dogey.AddModule<ModeratorModule>("Moderation", ModuleFilter.None);
 
             _dogey.AddModule<GamesModule>("General", ModuleFilter.None);

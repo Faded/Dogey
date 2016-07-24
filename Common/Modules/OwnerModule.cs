@@ -59,7 +59,7 @@ namespace Dogey.Common.Modules
                 //    });
             });
 
-            DogeyConsole.Log(LogSeverity.Info, "Module", "Done");
+            DogeyConsole.Log(LogSeverity.Info, "OwnerModule", "Done");
         }
     }
 }                  

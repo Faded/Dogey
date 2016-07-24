@@ -44,7 +44,29 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string questionUrl = SearchWith.StackExchange(e.Args[0], e.Args[1]);
+                        string questionUrl = SearchWith.StackExchange("stackoverflow", e.Args[0], e.Args[1]);
+                        await message.Edit(questionUrl);
+                    });
+                cmd.CreateCommand("superuser")
+                    .Alias(new string[] { "su" })
+                    .Description("Search SuperUser for a question matching the provided text.")
+                    .Parameter("tag", ParameterType.Required)
+                    .Parameter("query", ParameterType.Unparsed)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string questionUrl = SearchWith.StackExchange("superuser", e.Args[0], e.Args[1]);
+                        await message.Edit(questionUrl);
+                    });
+                cmd.CreateCommand("arqade")
+                    .Alias(new string[] { "aq" })
+                    .Description("Search Arqade for a question matching the provided text.")
+                    .Parameter("tag", ParameterType.Required)
+                    .Parameter("query", ParameterType.Unparsed)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string questionUrl = SearchWith.StackExchange("arqade", e.Args[0], e.Args[1]);
                         await message.Edit(questionUrl);
                     });
                 cmd.CreateCommand("gif")

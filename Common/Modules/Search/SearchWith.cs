@@ -39,11 +39,11 @@ namespace Dogey.Common.Modules
             return $"I was unable to find a video on youtube like `{query}`.";
         }
         
-        public static string StackExchange(string tag, string query)
+        public static string StackExchange(string site, string tag, string query)
         {
-            const string queryUrl = "http://api.stackexchange.com/2.2/search?pagesize=1&order=desc&sort=votes&tagged={0}&intitle={1}&site=stackoverflow";
+            const string queryUrl = "http://api.stackexchange.com/2.2/search/advanced?page=1&pagesize=1&order=desc&sort=relevance&tagged={0}&title={1}&site={2}";
 
-            Uri queryUri = new Uri(string.Format(queryUrl, Uri.EscapeDataString(tag), Uri.EscapeDataString(query)));
+            Uri queryUri = new Uri(string.Format(queryUrl, Uri.EscapeDataString(tag), Uri.EscapeDataString(query), Uri.EscapeDataString(site)));
             var request = (HttpWebRequest)HttpWebRequest.Create(queryUri);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             var response = request.GetResponse();
