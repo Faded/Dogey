@@ -12,6 +12,7 @@ namespace Dogey.Common
     {
         public char Prefix { get; set; }
         public List<ulong> Owner { get; set; }
+        public ulong OwnerGuild { get; set; }
         public Tokens Token { get; set; }
 
         public Configuration()

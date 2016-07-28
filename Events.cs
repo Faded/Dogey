@@ -26,6 +26,9 @@ namespace Dogey
                 {
                     return s.GetChannel((ulong)settings.ActivityChannel);
                 }
+            } else {
+                File.Create(guildConfig).Close();
+                File.WriteAllText(guildConfig, JsonConvert.SerializeObject(new GuildSettings(s.Id), Formatting.Indented));
             }
             return null;
         }
@@ -34,22 +37,16 @@ namespace Dogey
         {
             if (e.Message.IsMentioningMe()) Console.BackgroundColor = ConsoleColor.DarkBlue;
             if (e.Channel.IsPrivate && e.Server == null)
-            {
                 DogeyConsole.Append("[PM]", ConsoleColor.DarkMagenta);
-            }
             else
-            {
                 DogeyConsole.Append($"[{e.Server.Name} - {e.Channel.Name}]", ConsoleColor.DarkYellow);
-            }
-
+            
             DogeyConsole.Append($"[{e.User.Name}]", ConsoleColor.Yellow);
             DogeyConsole.Append($" {e.Message.RawText}", ConsoleColor.White);
 
             if (e.Message.Attachments.Count() > 0)
-            {
                 DogeyConsole.Append($" +{e.Message.Attachments.Count()}", ConsoleColor.Green);
-            }
-
+            
             DogeyConsole.NewLine();
             Console.BackgroundColor = ConsoleColor.Black;
         }
@@ -60,9 +57,9 @@ namespace Dogey
             if (activity != null)
             {
                 var msg = new List<string>();
-                msg.Add($"**Message Deleted** {e.User}");
+                msg.Add($"**Message Deleted**");
                 msg.Add("```erlang");
-                msg.Add($"{e.Message.User} #{e.Message.Channel.Name}");
+                msg.Add($"{e.Message.User} ({e.Message.Id}) #{e.Message.Channel.Name}");
                 msg.Add("```");
 
                 await activity.SendMessage(string.Join("\n", msg));
@@ -84,12 +81,12 @@ namespace Dogey
             }
         }
 
-        internal static void ProfileUpdated(object sender, ProfileUpdatedEventArgs e)
+        internal static async void ProfileUpdated(object sender, ProfileUpdatedEventArgs e)
         {
-            throw new NotImplementedException();
+            await Task.Delay(1);
         }
 
-        internal static void UserJoined(object sender, UserEventArgs e)
+        internal static async void UserJoined(object sender, UserEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
@@ -97,18 +94,49 @@ namespace Dogey
             Console.Write($"{e.User.Name} ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"has joined the server.");
-        }
-        internal static void UserLeft(object sender, UserEventArgs e)
-        {
 
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                if (e.User.IsBot)
+                    msg.Add($"**Bot Joined** :robot:");
+                else
+                    msg.Add($"**User Joined** :chart_with_upwards_trend:");
+                msg.Add("```erlang");
+                msg.Add($"{e.User} ({e.User.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
+        }
+        internal static async void UserLeft(object sender, UserEventArgs e)
+        {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write($"{e.User.Name} ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"has left the server.");
+
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                if (e.User.IsBot)
+                    msg.Add($"**Bot Left** :robot:");
+                else
+                    msg.Add($"**User Left** :chart_with_downwards_trend:");
+                msg.Add("```erlang");
+                msg.Add($"{e.User} ({e.User.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void UserBannned(object sender, UserEventArgs e)
+        internal static async void UserBannned(object sender, UserEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
@@ -117,8 +145,21 @@ namespace Dogey
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"was banned from the server. ");
             Console.ForegroundColor = ConsoleColor.Green;
+
+            var activity = ActivityChannel(e.Server);
+            
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**User Banned** :hammer:");
+                msg.Add("```erlang");
+                msg.Add($"{e.User} ({e.User.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void UserUnbanned(object sender, UserEventArgs e)
+        internal static async void UserUnbanned(object sender, UserEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write($"[{e.Server.Name}]");
@@ -127,8 +168,21 @@ namespace Dogey
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"was unbanned from the server. ");
             Console.ForegroundColor = ConsoleColor.Green;
+
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**User Unbanned** :ok_hand:");
+                msg.Add("```erlang");
+                msg.Add($"{e.User} ({e.User.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void UserUpdated(object sender, UserUpdatedEventArgs e)
+        internal static async void UserUpdated(object sender, UserUpdatedEventArgs e)
         {
             if (e.Before.VoiceChannel != null)
             {
@@ -137,56 +191,200 @@ namespace Dogey
 
                 if (File.Exists(tempChannel) && channel.Users.Count() < 1)
                 {
-                    channel.Delete();
+                    await channel.Delete();
                     File.Delete(tempChannel);
                 }
             }
+            
+            var activity = ActivityChannel(e.Server);
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**User Updated**");
+                msg.Add("```erlang");
+                msg.Add($"{e.Before} ({e.Before.Id})");
+
+                if (e.Before.Name != e.After.Name)
+                    msg.Add($"{e.Before.Name} => {e.After.Name}");
+                if (e.Before.Nickname != e.After.Nickname)
+                    msg.Add($"{e.Before.Name} => {e.After.Name}");
+                if (e.Before.AvatarUrl != e.After.AvatarUrl)
+                    msg.Add($"{e.Before.AvatarUrl} => {e.After.AvatarUrl}");
+
+                msg.Add("```");
+
+                if (msg.Count() > 4)
+                    await activity.SendMessage(string.Join("\n", msg));
+            }
         }
 
-        internal static void JoinedServer(object sender, ServerEventArgs e)
+        internal static async void JoinedServer(object sender, ServerEventArgs e)
         {
             string serverFolder = $@"servers\{e.Server.Id}";
             Directory.CreateDirectory(Path.Combine(serverFolder, "commands"));
             Directory.CreateDirectory(Path.Combine(serverFolder, "logs"));
 
             DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server.");
+
+            var ownerGuild = Program._dogey.GetServer(Program.config.OwnerGuild);
+            if (ownerGuild != null)
+            {
+                var activity = ActivityChannel(ownerGuild);
+
+                if (activity != null)
+                {
+                    var msg = new List<string>();
+                    msg.Add($"**Joined Server** :raised_hands:");
+                    msg.Add("```erlang");
+                    msg.Add($"{e.Server.Name} ({e.Server.Id})");
+                    msg.Add($"{e.Server.Owner} ({e.Server.Owner.Id})");
+                    msg.Add("```");
+
+                    await activity.SendMessage(string.Join("\n", msg));
+                }
+            }
         }
-        internal static void ServerUpdated(object sender, ServerUpdatedEventArgs e)
+        internal static async void ServerUpdated(object sender, ServerUpdatedEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.After);
+            
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Server Updated**");
+                msg.Add("```erlang");
+
+                if (e.Before.Name != e.After.Name)
+                    msg.Add($"{e.Before.Name} => {e.After.Name}");
+                if (e.Before.Region != e.After.Region)
+                    msg.Add($"{e.Before.Region} => {e.After.Region}");
+                
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
 
-        internal static void RoleCreated(object sender, RoleEventArgs e)
+        internal static async void RoleCreated(object sender, RoleEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Role Created** :new:");
+                msg.Add("```erlang");
+                msg.Add($"{e.Role.Name} ({e.Role.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void RoleDeleted(object sender, RoleEventArgs e)
+        internal static async void RoleDeleted(object sender, RoleEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Role Deleted** :new:");
+                msg.Add("```erlang");
+                msg.Add($"{e.Role.Name} ({e.Role.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void RoleUpdated(object sender, RoleUpdatedEventArgs e)
+        internal static async void RoleUpdated(object sender, RoleUpdatedEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Role Updated**");
+                msg.Add("```erlang");
+                msg.Add($"{e.Before.Name} ({e.Before.Id})");
+
+                if (e.Before.Name != e.After.Name)
+                    msg.Add($"{e.Before.Name} => {e.After.Name}");
+                if (e.Before.Color != e.After.Color)
+                    msg.Add($"{e.Before.Color} => {e.After.Color}");
+
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
 
-        internal static void ChannelCreated(object sender, ChannelEventArgs e)
+        internal static async void ChannelCreated(object sender, ChannelEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Channel Created** :new:");
+                msg.Add("```erlang");
+                msg.Add($"{e.Channel.Name} ({e.Channel.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void ChannelDestroyed(object sender, ChannelEventArgs e)
+        internal static async void ChannelDestroyed(object sender, ChannelEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Channel Deleted** :new:");
+                msg.Add("```erlang");
+                msg.Add($"{e.Channel.Name} ({e.Channel.Id})");
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
-        internal static void ChannelUpdated(object sender, ChannelUpdatedEventArgs e)
+        internal static async void ChannelUpdated(object sender, ChannelUpdatedEventArgs e)
         {
-            throw new NotImplementedException();
+            var activity = ActivityChannel(e.Server);
+
+            if (activity != null)
+            {
+                var msg = new List<string>();
+                msg.Add($"**Channel Updated**");
+                msg.Add("```erlang");
+                msg.Add($"{e.Before.Name} ({e.Before.Id})");
+
+                if (e.Before.Name != e.After.Name)
+                    msg.Add($"{e.Before.Name} => {e.After.Name}");
+                if (e.Before.Topic != e.After.Topic)
+                    msg.Add($"{e.Before.Topic} => {e.After.Topic}");
+
+                msg.Add("```");
+
+                await activity.SendMessage(string.Join("\n", msg));
+            }
         }
         
-        internal static void CommandError(object sender, CommandErrorEventArgs e)
+        internal static async void CommandError(object sender, CommandErrorEventArgs e)
         {
-            //DogeyConsole.Log(Enum.GetName(typeof(CommandErrorType), e.ErrorType), e.Command.Text, e.Exception.Message);
-            //e.Channel.SendMessage(e.Exception.ToString());
+            switch (e.ErrorType)
+            {
+                case CommandErrorType.Exception:
+                    await e.Channel.SendMessage($"Wow! {e.Exception.GetBaseException().Message}");
+                    break;
+                case CommandErrorType.BadArgCount:
+                    break;
+                case CommandErrorType.BadPermissions:
+                    break;
+                case CommandErrorType.InvalidInput:
+                    break;
+                case CommandErrorType.UnknownCommand:
+                    break;
+            }
         }
-
     }
 }

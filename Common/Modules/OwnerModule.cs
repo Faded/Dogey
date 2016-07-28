@@ -42,21 +42,22 @@ namespace Dogey.Common.Modules
                             await e.Channel.SendMessage($"I changed my avatar to `{e.Args[0]}`.");
                         }
                     });
-                //cmd.CreateCommand("setgame")
-                //    .MinPermissions((int)AccessLevel.BotAdmin)
-                //    .Description("Change dogey's game.")
-                //    .Parameter("game", ParameterType.Required)
-                //    .Do(async e =>
-                //    {
-                //        if (string.IsNullOrWhiteSpace(e.Args[0]))
-                //        {
-                //            await e.Channel.SendMessage($"I can't play that game...");
-                //        } else
-                //        {
-                //            await _dogey.CurrentUser.Edit(;
-                //            await e.Channel.SendMessage($"I can't play that game...");
-                //        }
-                //    });
+                cmd.CreateCommand("setgame")
+                    .MinPermissions((int)AccessLevel.BotAdmin)
+                    .Description("Change dogey's game.")
+                    .Parameter("game", ParameterType.Required)
+                    .Do(async e =>
+                    {
+                        if (string.IsNullOrWhiteSpace(e.Args[0]))
+                        {
+                            await e.Channel.SendMessage($"I can't play that game...");
+                        }
+                        else
+                        {
+                            _dogey.SetGame(e.Args[0]);
+                            await e.Channel.SendMessage($"I am now playing **{e.Args[0]}**.");
+                        }
+                    });
             });
 
             DogeyConsole.Log(LogSeverity.Info, "OwnerModule", "Done");
