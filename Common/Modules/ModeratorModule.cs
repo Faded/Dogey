@@ -26,10 +26,10 @@ namespace Dogey.Common.Modules
 
             manager.CreateCommands("", cmd =>
             {
-                cmd.CreateCommand("prune")
+                cmd.CreateCommand("clean")
                     .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Clear a specific user's messages from the current channel.")
-                    .Parameter("type", ParameterType.Required)
+                    .Parameter("condition", ParameterType.Required)
                     .Parameter("messages", ParameterType.Optional)
                     .Do(async e =>
                     {
