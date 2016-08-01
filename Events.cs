@@ -57,7 +57,7 @@ namespace Dogey
             if (activity != null)
             {
                 var msg = new List<string>();
-                msg.Add($"**Message Deleted**");
+                msg.Add($"**Message Deleted** :wastebasket:");
                 msg.Add("```erlang");
                 msg.Add($"{e.Message.User} ({e.Message.Id}) #{e.Message.Channel.Name}");
                 msg.Add("```");
@@ -224,7 +224,7 @@ namespace Dogey
             Directory.CreateDirectory(Path.Combine(serverFolder, "commands"));
             Directory.CreateDirectory(Path.Combine(serverFolder, "logs"));
 
-            DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server.");
+            DogeyConsole.Log(LogSeverity.Info, e.Server.Name, "Joined new server. :OhMyDoge:");
 
             var ownerGuild = Program._dogey.GetServer(Program.config.OwnerGuild);
             if (ownerGuild != null)
@@ -287,7 +287,7 @@ namespace Dogey
             if (activity != null)
             {
                 var msg = new List<string>();
-                msg.Add($"**Role Deleted** :new:");
+                msg.Add($"**Role Deleted**  :wastebasket:");
                 msg.Add("```erlang");
                 msg.Add($"{e.Role.Name} ({e.Role.Id})");
                 msg.Add("```");
@@ -339,7 +339,7 @@ namespace Dogey
             if (activity != null)
             {
                 var msg = new List<string>();
-                msg.Add($"**Channel Deleted** :new:");
+                msg.Add($"**Channel Deleted** :wastebasket:");
                 msg.Add("```erlang");
                 msg.Add($"{e.Channel.Name} ({e.Channel.Id})");
                 msg.Add("```");
@@ -374,7 +374,7 @@ namespace Dogey
             switch (e.ErrorType)
             {
                 case CommandErrorType.Exception:
-                    await e.Channel.SendMessage($"Wow! {e.Exception.GetBaseException().Message}");
+                    await e.Channel.SendMessage(e.Exception.GetBaseException().Message);
                     break;
                 case CommandErrorType.BadArgCount:
                     break;
