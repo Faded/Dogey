@@ -1,10 +1,5 @@
 ﻿using Discord;
 using Dogey.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dogey.Utility
 {
