@@ -6,6 +6,7 @@ using Dogey.Common;
 using Dogey.Common.Modules;
 using Dogey.Utility;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Dogey
@@ -54,6 +55,14 @@ namespace Dogey
             {
                 DogeyConsole.Log(e.Severity, e.Source, e.Message);
             };
+            _dogey.Ready += (s, e) =>
+            {
+                foreach (var server in _dogey.Servers)
+                {
+                    if (!Directory.Exists($@"servers\{server.Id}"))
+                        Directory.CreateDirectory($@"servers\{server.Id}");
+                }
+            };
 
             _dogey.ExecuteAndWait(async () =>
             {
@@ -85,7 +94,7 @@ namespace Dogey
             _dogey.UserBanned += Events.UserBannned;
             _dogey.UserUnbanned += Events.UserUnbanned;
             _dogey.UserUpdated += Events.UserUpdated;
-
+            
             _dogey.JoinedServer += Events.JoinedServer;
             _dogey.ServerUpdated += Events.ServerUpdated;
 
@@ -110,6 +119,7 @@ namespace Dogey
             _dogey.AddModule<TempModule>("General", ModuleFilter.None);
             _dogey.AddModule<DogeyModule>("Other", ModuleFilter.None);
 
+            //_dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
             _dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
         }
     }

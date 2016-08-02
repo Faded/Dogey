@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dogey.Common.Modules
+namespace Dogey.Common.Modules.AAAAAAAAAAAAAAAAa
 {
     public class CommandInfo
     {

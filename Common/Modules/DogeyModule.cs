@@ -6,6 +6,7 @@ using NCalc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 
@@ -26,6 +27,7 @@ namespace Dogey.Common.Modules
             manager.CreateCommands("", cmd =>
             {
                 cmd.CreateCommand("doge")
+                    .AddCheck((cm, u, ch) => !ch.IsPrivate)
                     .Description("Get a doge.")
                     .Parameter("phrase", ParameterType.Multiple)
                     .Do(async e =>
@@ -37,31 +39,25 @@ namespace Dogey.Common.Modules
                         foreach (string arg in e.Args)
                         {
                             if (dogeText == null)
-                            {
                                 dogeText += arg;
-                            }
                             else
-                            {
                                 dogeText += "/" + arg;
-                            }
                         }
                         
                         using (WebClient client = new WebClient())
-                        {
                             client.DownloadFile($"http://dogr.io/wow/{Uri.UnescapeDataString(dogeText)}.png", dogeFile);
-                        }
-
+                        
                         await e.Channel.SendFile(dogeFile);
                         System.IO.File.Delete(dogeFile);
                     });
                 cmd.CreateCommand("evaluate")
+                    .AddCheck((cm, u, ch) => !ch.IsPrivate)
                     .Alias(new string[] { "eval" })
                     .Description("Do some math.")
                     .Parameter("Math", ParameterType.Unparsed)
                     .Do(async e =>
                     {
                         var express = new Expression(e.Args[0]);
-
                         await e.Channel.SendMessage($"The solution for **{e.Args[0]}** is **{express.Evaluate()}**");
                     });
                 cmd.CreateCommand("info")
@@ -71,19 +67,6 @@ namespace Dogey.Common.Modules
                         var msg = new List<string>();
                         var proc = Process.GetCurrentProcess();
 
-                        msg.Add("```erlang");
-                        msg.Add($" Started: {proc.StartTime.ToString("MMM d, yy h:mm:ss tt")}");
-                        msg.Add($"  Memory: {(double.Parse(proc.PrivateMemorySize64.ToString()) / 1000).ToString("N2")} kb");
-                        msg.Add($"  Uptime: {Math.Round(timer.Elapsed.TotalDays, 2)} days");
-                        msg.Add($" Version: {Assembly.GetExecutingAssembly().GetName().Version}");
-                        msg.Add("```");
-
-                        await e.Channel.SendMessage(string.Join("\n", msg));
-                    });
-                cmd.CreateCommand("uptime")
-                    .Description("Shows how long Dogey has been online.")
-                    .Do(async e =>
-                    {
                         string days = $"**{timer.Elapsed.Days}** day";
                         if (days != "1 day") days += "s";
                         string hours = $"**{timer.Elapsed.Hours}** hour";
@@ -91,13 +74,26 @@ namespace Dogey.Common.Modules
                         string minutes = $"**{timer.Elapsed.Minutes}** minute";
                         if (minutes != "1 minute") minutes += "s";
 
-                        await e.Channel.SendMessage($"I have been online for {days} {hours} {minutes}.");
+                        msg.Add("```erlang");
+                        msg.Add($"  Uptime: {days} {hours} {minutes}");
+                        msg.Add($"  Memory: {(double.Parse(proc.PrivateMemorySize64.ToString()) / 1000).ToString("N2")} kb");
+                        msg.Add($"  People: {_dogey.Servers.Count()} servers {_dogey.Servers.Sum(x => x.ChannelCount)} channels {_dogey.Servers.Sum(x => x.UserCount)} users");
+                        msg.Add($" Version: {Assembly.GetExecutingAssembly().GetName().Version}");
+                        msg.Add("```");
+
+                        await e.Channel.SendMessage(string.Join("\n", msg));
                     });
                 cmd.CreateCommand("invite")
                     .Description("Provides a link to invite Dogey to a server.")
                     .Do(async e =>
                     {
                         await e.Channel.SendMessage("https://discordapp.com/oauth2/authorize?client_id=180692566608576512&scope=bot&permissions=67226624");
+                    });
+                cmd.CreateCommand("wiki")
+                    .Description("Provides a link to Dogey's wiki.")
+                    .Do(async e =>
+                    {
+                        await e.Channel.SendMessage("https://github.com/Auxes/Dogey/wiki");
                     });
             });
 

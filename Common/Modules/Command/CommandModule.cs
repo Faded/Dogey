@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Dogey.Common.Modules
+namespace Dogey.Common.Modules.AAAAAAAAAAAAAAAAa
 {
     public class CommandModule : IModule
     {
@@ -338,16 +338,11 @@ namespace Dogey.Common.Modules
 
                         CommandInfo cmdObj = null;
                         if (File.Exists(serverCommand))
-                        {
                             cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(serverCommand));
-                        } else
-                        if (File.Exists(channelCommand))
-                        {
+                        else if (File.Exists(channelCommand))
                             cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(channelCommand));
-                        } else
-                        {
+                        else
                             return;
-                        }
                         
                         switch (cmdObj.Messages.Count)
                         {
@@ -384,19 +379,13 @@ namespace Dogey.Common.Modules
 
                         CommandInfo cmdObj = null;
                         if (File.Exists(serverCommand))
-                        {
                             cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(serverCommand));
-                        }
                         else
                         if (File.Exists(channelCommand))
-                        {
                             cmdObj = JsonConvert.DeserializeObject<CommandInfo>(File.ReadAllText(channelCommand));
-                        }
                         else
-                        {
                             return;
-                        }
-
+                        
                         switch (cmdObj.Messages.Count)
                         {
                             case 0:

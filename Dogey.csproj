@@ -151,11 +151,15 @@
     <Compile Include="Common\Modules\ModeratorModule.cs" />
     <Compile Include="Common\Modules\Command\CommandInfo.cs" />
     <Compile Include="Common\Modules\Command\CommandModule.cs" />
-    <Compile Include="Common\Modules\Command\CommandTags.cs" />
+    <Compile Include="Common\Modules\newCommand\CommandTags.cs" />
     <Compile Include="Common\Modules\DogeyModule.cs" />
     <Compile Include="Common\Modules\GamesModule.cs" />
     <Compile Include="Common\Modules\Guild\GuildModule.cs" />
     <Compile Include="Common\Modules\InfoModule.cs" />
+    <Compile Include="Common\Modules\newCommand\CommandModule.cs" />
+    <Compile Include="Common\Modules\newCommand\CommandInfo.cs" />
+    <Compile Include="Common\Modules\newCommand\CustomCmd.cs" />
+    <Compile Include="Common\Modules\newCommand\CustomModule.cs" />
     <Compile Include="Common\Modules\Search\SearchModule.cs" />
     <Compile Include="Common\Modules\Search\SearchWith.cs" />
     <Compile Include="Common\Modules\OwnerModule.cs" />

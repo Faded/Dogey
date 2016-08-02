@@ -31,7 +31,7 @@ namespace Dogey
             }
             return null;
         }
-
+        
         internal static void MessageRecieved(object s, MessageEventArgs e)
         {
             if (e.Message.IsMentioningMe()) Console.BackgroundColor = ConsoleColor.DarkBlue;

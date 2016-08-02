@@ -20,6 +20,8 @@ namespace Dogey.Common.Modules
 
             manager.CreateCommands("", cmd =>
             {
+                cmd.AddCheck((cm, u, ch) => !ch.IsPrivate);
+
                 cmd.CreateCommand("serverinfo")
                     .Description("Get info about this server.")
                     .Do(async e =>

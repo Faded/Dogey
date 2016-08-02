@@ -22,6 +22,8 @@ namespace Dogey.Common.Modules
             
             manager.CreateCommands("clean", cmd =>
             {
+                cmd.AddCheck((cm, u, ch) => !ch.IsPrivate);
+
                 cmd.CreateCommand("all")
                     .MinPermissions((int)AccessLevel.ChannelMod)
                     .Description("Delete the specified number of messages from the channel.")
