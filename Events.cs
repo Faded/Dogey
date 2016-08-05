@@ -26,8 +26,8 @@ namespace Dogey
                     return s.GetChannel((ulong)settings.ActivityChannel);
                 }
             } else {
-                File.Create(guildConfig).Close();
-                File.WriteAllText(guildConfig, JsonConvert.SerializeObject(new GuildSettings(s.Id), Formatting.Indented));
+                //File.Create(guildConfig).Close();
+                //File.WriteAllText(guildConfig, JsonConvert.SerializeObject(new GuildSettings(s.Id), Formatting.Indented));
             }
             return null;
         }

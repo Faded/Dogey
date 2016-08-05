@@ -2,6 +2,7 @@
 using Google.Apis.YouTube.v3;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -37,9 +38,9 @@ namespace Dogey.Common.Modules
         
         public static string StackExchange(string site, string tag, string query)
         {
-            const string queryUrl = "http://api.stackexchange.com/2.2/search/advanced?page=1&pagesize=1&order=desc&sort=relevance&tagged={0}&title={1}&site={2}";
+            const string queryUrl = "https://api.stackexchange.com/2.2/search/advanced?page=1&pagesize=1&order=desc&sort=relevance&q={0}&answers=1&tagged={1}&site={2}";
 
-            Uri queryUri = new Uri(string.Format(queryUrl, Uri.EscapeDataString(tag), Uri.EscapeDataString(query), Uri.EscapeDataString(site)));
+            Uri queryUri = new Uri(string.Format(queryUrl, Uri.EscapeDataString(query), Uri.EscapeDataString(tag), Uri.EscapeDataString(site)));
             var request = (HttpWebRequest)HttpWebRequest.Create(queryUri);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             var response = request.GetResponse();
@@ -48,7 +49,7 @@ namespace Dogey.Common.Modules
             {
                 StreamReader reader = new StreamReader(stream, Encoding.UTF8);
                 string json = reader.ReadToEnd();
-
+                
                 var obj = JObject.Parse(json);
 
                 if (!obj["items"].HasValues)
@@ -61,5 +62,39 @@ namespace Dogey.Common.Modules
                 }
             }
         }
+
+        public static string StackExchangeTags(string site, string tag)
+        {
+            const string queryUrl = "https://api.stackexchange.com/2.2/tags?page=1&pagesize=25&order=desc&sort=popular&inname={0}&site=stackoverflow";
+
+            Uri queryUri = new Uri(string.Format(queryUrl, Uri.EscapeDataString(tag), Uri.EscapeDataString(site)));
+            var request = (HttpWebRequest)HttpWebRequest.Create(queryUri);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            var response = request.GetResponse();
+
+            using (Stream stream = response.GetResponseStream())
+            {
+                StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                string json = reader.ReadToEnd();
+
+                var obj = JObject.Parse(json);
+                
+                if (!obj["items"].HasValues)
+                {
+                    return $"I was unable to find any tags like `{tag}`.";
+                }
+                else
+                {
+                    var tags = new List<string>();
+                    foreach(var tagobj in obj["items"])
+                    {
+                        tags.Add(tagobj["name"].ToString());
+                    }
+
+                    return string.Join(", ", tags);
+                }
+            }
+        }
+
     }
 }

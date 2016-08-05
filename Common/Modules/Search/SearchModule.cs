@@ -19,7 +19,7 @@ namespace Dogey.Common.Modules
         {
             _manager = manager;
             _dogey = manager.Client;
-
+            
             manager.CreateCommands("", cmd =>
             {
                 cmd.CreateCommand("youtube")
@@ -31,6 +31,15 @@ namespace Dogey.Common.Modules
                         var message = await e.Channel.SendMessage("Searching...");
                         string videoUrl = SearchWith.Youtube(e.Args[0]);
                         await message.Edit(videoUrl);
+                    });
+                cmd.CreateCommand("findtags")
+                    .Description("Search a stackexchange site for available tags.")
+                    .Parameter("keyword", ParameterType.Optional)
+                    .Do(async e =>
+                    {
+                        var message = await e.Channel.SendMessage("Searching...");
+                        string tags = SearchWith.StackExchangeTags("stackoverflow", e.Args[0]);
+                        await message.Edit($"Available tags like `{e.Args[0]}`\n```erlang\n{tags}```");
                     });
                 cmd.CreateCommand("stackoverflow")
                     .Alias(new string[] { "so" })

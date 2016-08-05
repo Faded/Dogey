@@ -46,6 +46,7 @@ namespace Dogey.Common.Modules
                             {
                                 await msg.Delete();
                                 deletedMessages++;
+                                await Task.Delay(250);
                             }
 
                             var message = await e.Channel.SendMessage($"Deleted **{deletedMessages}** message(s).");
@@ -78,6 +79,7 @@ namespace Dogey.Common.Modules
                                 {
                                     await msg.Delete();
                                     deletedMessages++;
+                                    await Task.Delay(250);
                                 }
                             }
 
@@ -111,10 +113,17 @@ namespace Dogey.Common.Modules
                                 {
                                     await msg.Delete();
                                     deletedMessages++;
+                                    await Task.Delay(250);
+                                }
+                                if (e.Args.Contains(msg.User.Name) || e.Args.Contains(msg.User.Nickname))
+                                {
+                                    await msg.Delete();
+                                    deletedMessages++;
+                                    await Task.Delay(250);
                                 }
                             }
-
-                            var message = await e.Channel.SendMessage($"Deleted **{deletedMessages}** message(s) by `{string.Join(", ", e.Message.MentionedUsers)}`.");
+                            
+                            var message = await e.Channel.SendMessage($"Deleted **{deletedMessages}** message(s) by `{string.Join(", ", e.Args)}`.");
                             await Task.Delay(5000);
                             await e.Message.Delete();
                             await message.Delete();
@@ -142,6 +151,7 @@ namespace Dogey.Common.Modules
                             {
                                 await msg.Delete();
                                 deletedMessages++;
+                                await Task.Delay(250);
                             }
                         }
 
@@ -168,6 +178,7 @@ namespace Dogey.Common.Modules
                             {
                                 await msg.Delete();
                                 deletedMessages++;
+                                await Task.Delay(250);
                             }
                         }
 
@@ -195,6 +206,7 @@ namespace Dogey.Common.Modules
                             {
                                 await msg.Delete();
                                 deletedMessages++;
+                                await Task.Delay(250);
                             }
                         }
 
