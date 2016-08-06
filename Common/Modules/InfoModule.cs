@@ -53,23 +53,17 @@ namespace Dogey.Common.Modules
                         if (!string.IsNullOrWhiteSpace(findUser))
                         {
                             if (e.Message.MentionedUsers.Count() == 1)
-                            {
                                 u = e.Message.MentionedUsers.FirstOrDefault();
-                            }
+                            else if (e.Server.FindUsers(findUser).Any())
+                                u = e.Server.FindUsers(findUser).FirstOrDefault();
                             else
-                            if (e.Server.FindUsers(e.Args[0]).Any())
-                            {
-                                u = e.Server.FindUsers(e.Args[0]).FirstOrDefault();
-                            } else
-                            {
-                                await e.Channel.SendMessage($"I was unable to find a user like `{findUser}`.");
-                                return;
-                            }
-                        } else
+                                await e.Channel.SendMessage($"I was unable to find a user like `{findUser}`");
+                        }
+                        else
                         {
                             u = e.User;
                         }
-
+                        
                         var infomsg = new List<string>();
 
                         infomsg.Add("```erlang");
