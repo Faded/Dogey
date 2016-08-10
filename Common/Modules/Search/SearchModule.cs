@@ -29,7 +29,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string videoUrl = SearchWith.Youtube(e.Args[0]);
+                        string videoUrl = Search.Youtube(e.Args[0]);
                         await message.Edit(videoUrl);
                     });
                 cmd.CreateCommand("findtags")
@@ -38,7 +38,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string tags = SearchWith.StackExchangeTags("stackoverflow", e.Args[0]);
+                        string tags = Search.StackExchangeTags("stackoverflow", e.Args[0]);
                         await message.Edit($"Available tags like `{e.Args[0]}`\n```erlang\n{tags}```");
                     });
                 cmd.CreateCommand("stackoverflow")
@@ -49,7 +49,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string questionUrl = SearchWith.StackExchange("stackoverflow", e.Args[0], e.Args[1]);
+                        string questionUrl = Search.StackExchange("stackoverflow", e.Args[0], e.Args[1]);
                         await message.Edit(questionUrl);
                     });
                 cmd.CreateCommand("superuser")
@@ -60,7 +60,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string questionUrl = SearchWith.StackExchange("superuser", e.Args[0], e.Args[1]);
+                        string questionUrl = Search.StackExchange("superuser", e.Args[0], e.Args[1]);
                         await message.Edit(questionUrl);
                     });
                 cmd.CreateCommand("arqade")
@@ -71,7 +71,7 @@ namespace Dogey.Common.Modules
                     .Do(async e =>
                     {
                         var message = await e.Channel.SendMessage("Searching...");
-                        string questionUrl = SearchWith.StackExchange("arqade", e.Args[0], e.Args[1]);
+                        string questionUrl = Search.StackExchange("arqade", e.Args[0], e.Args[1]);
                         await message.Edit(questionUrl);
                     });
                 cmd.CreateCommand("gif")
@@ -101,7 +101,7 @@ namespace Dogey.Common.Modules
                         var nicknames = e.Server.Users.Where(x => x.Nickname.Contains(keywords));
                         var usernames = e.Server.Users.Where(x => x.Name.Contains(keywords));
                         var discrims = e.Server.Users.Where(x => x.Discriminator.ToString().Contains(keywords));
-
+                        
                         var msg = new List<string>();
                         msg.Add("```erlang");
 
@@ -137,7 +137,7 @@ namespace Dogey.Common.Modules
                         string getUrl = $"http://ip-api.com/json/{e.Args[0]}";
                         string mapsUrl = "https://www.google.com/maps/@{0},{1},15z";
 
-                        using (WebClient client = new WebClient())
+                        using (var client = new WebClient())
                         {
                             string json = client.DownloadString(getUrl);
                             var info = JObject.Parse(json);

@@ -118,8 +118,7 @@ namespace Dogey
             _dogey.AddModule<InfoModule>("General", ModuleFilter.None);
             _dogey.AddModule<TempModule>("General", ModuleFilter.None);
             _dogey.AddModule<DogeyModule>("Other", ModuleFilter.None);
-
-            //_dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
+            
             _dogey.AddModule<CommandModule>("Custom", ModuleFilter.None);
         }
     }

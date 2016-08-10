@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Dogey.Common.Modules
 {
-    public static class SearchWith
+    public static class Search
     {
         public static string Youtube(string query)
         {
